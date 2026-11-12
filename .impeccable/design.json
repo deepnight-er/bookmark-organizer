@@ -1,0 +1,751 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-12T10:37:39.271980+00:00",
+  "title": "Design System: 书签整理",
+  "extensions": {
+    "colorMeta": {
+      "canvas": {
+        "role": "neutral",
+        "displayName": "画布",
+        "tonalRamp": [
+          "oklch(15% 0.0041 91.45)",
+          "oklch(26% 0.0041 91.45)",
+          "oklch(38% 0.0041 91.45)",
+          "oklch(49% 0.0041 91.45)",
+          "oklch(61% 0.0041 91.45)",
+          "oklch(72% 0.0041 91.45)",
+          "oklch(84% 0.0041 91.45)",
+          "oklch(95% 0.0041 91.45)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "内容表面",
+        "tonalRamp": [
+          "oklch(15% 0.0054 95.10)",
+          "oklch(26% 0.0054 95.10)",
+          "oklch(38% 0.0054 95.10)",
+          "oklch(49% 0.0054 95.10)",
+          "oklch(61% 0.0054 95.10)",
+          "oklch(72% 0.0054 95.10)",
+          "oklch(84% 0.0054 95.10)",
+          "oklch(95% 0.0054 95.10)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "sidebar": {
+        "role": "neutral",
+        "displayName": "来源栏",
+        "tonalRamp": [
+          "oklch(15% 0.0054 95.10)",
+          "oklch(26% 0.0054 95.10)",
+          "oklch(38% 0.0054 95.10)",
+          "oklch(49% 0.0054 95.10)",
+          "oklch(61% 0.0054 95.10)",
+          "oklch(72% 0.0054 95.10)",
+          "oklch(84% 0.0054 95.10)",
+          "oklch(95% 0.0054 95.10)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "panel": {
+        "role": "neutral",
+        "displayName": "辅助面板",
+        "tonalRamp": [
+          "oklch(15% 0.0054 95.10)",
+          "oklch(26% 0.0054 95.10)",
+          "oklch(38% 0.0054 95.10)",
+          "oklch(49% 0.0054 95.10)",
+          "oklch(61% 0.0054 95.10)",
+          "oklch(72% 0.0054 95.10)",
+          "oklch(84% 0.0054 95.10)",
+          "oklch(95% 0.0054 95.10)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "text": {
+        "role": "neutral",
+        "displayName": "正文",
+        "tonalRamp": [
+          "oklch(15% 0.0055 106.77)",
+          "oklch(26% 0.0055 106.77)",
+          "oklch(38% 0.0055 106.77)",
+          "oklch(49% 0.0055 106.77)",
+          "oklch(61% 0.0055 106.77)",
+          "oklch(72% 0.0055 106.77)",
+          "oklch(84% 0.0055 106.77)",
+          "oklch(95% 0.0055 106.77)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "次要文字",
+        "tonalRamp": [
+          "oklch(15% 0.0109 100.15)",
+          "oklch(26% 0.0109 100.15)",
+          "oklch(38% 0.0109 100.15)",
+          "oklch(49% 0.0109 100.15)",
+          "oklch(61% 0.0109 100.15)",
+          "oklch(72% 0.0109 100.15)",
+          "oklch(84% 0.0109 100.15)",
+          "oklch(95% 0.0109 100.15)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "边框",
+        "tonalRamp": [
+          "oklch(15% 0.0108 106.62)",
+          "oklch(26% 0.0108 106.62)",
+          "oklch(38% 0.0108 106.62)",
+          "oklch(49% 0.0108 106.62)",
+          "oklch(61% 0.0108 106.62)",
+          "oklch(72% 0.0108 106.62)",
+          "oklch(84% 0.0108 106.62)",
+          "oklch(95% 0.0108 106.62)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "soft-line": {
+        "role": "neutral",
+        "displayName": "行分隔线",
+        "tonalRamp": [
+          "oklch(15% 0.0094 99.99)",
+          "oklch(26% 0.0094 99.99)",
+          "oklch(38% 0.0094 99.99)",
+          "oklch(49% 0.0094 99.99)",
+          "oklch(61% 0.0094 99.99)",
+          "oklch(72% 0.0094 99.99)",
+          "oklch(84% 0.0094 99.99)",
+          "oklch(95% 0.0094 99.99)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "hover": {
+        "role": "neutral",
+        "displayName": "悬停",
+        "tonalRamp": [
+          "oklch(15% 0.0080 98.88)",
+          "oklch(26% 0.0080 98.88)",
+          "oklch(38% 0.0080 98.88)",
+          "oklch(49% 0.0080 98.88)",
+          "oklch(61% 0.0080 98.88)",
+          "oklch(72% 0.0080 98.88)",
+          "oklch(84% 0.0080 98.88)",
+          "oklch(95% 0.0080 98.88)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "selected": {
+        "role": "neutral",
+        "displayName": "选择",
+        "tonalRamp": [
+          "oklch(15% 0.0094 106.58)",
+          "oklch(26% 0.0094 106.58)",
+          "oklch(38% 0.0094 106.58)",
+          "oklch(49% 0.0094 106.58)",
+          "oklch(61% 0.0094 106.58)",
+          "oklch(72% 0.0094 106.58)",
+          "oklch(84% 0.0094 106.58)",
+          "oklch(95% 0.0094 106.58)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "accent": {
+        "role": "primary",
+        "displayName": "石墨强调色",
+        "tonalRamp": [
+          "oklch(15% 0.0246 262.79)",
+          "oklch(26% 0.0246 262.79)",
+          "oklch(38% 0.0246 262.79)",
+          "oklch(49% 0.0246 262.79)",
+          "oklch(61% 0.0246 262.79)",
+          "oklch(72% 0.0246 262.79)",
+          "oklch(84% 0.0246 262.79)",
+          "oklch(95% 0.0246 262.79)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "on-accent": {
+        "role": "neutral",
+        "displayName": "强调色前景",
+        "tonalRamp": [
+          "oklch(15% 0.0000 89.88)",
+          "oklch(26% 0.0000 89.88)",
+          "oklch(38% 0.0000 89.88)",
+          "oklch(49% 0.0000 89.88)",
+          "oklch(61% 0.0000 89.88)",
+          "oklch(72% 0.0000 89.88)",
+          "oklch(84% 0.0000 89.88)",
+          "oklch(95% 0.0000 89.88)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "danger": {
+        "role": "neutral",
+        "displayName": "危险动作",
+        "tonalRamp": [
+          "oklch(15% 0.1467 29.64)",
+          "oklch(26% 0.1467 29.64)",
+          "oklch(38% 0.1467 29.64)",
+          "oklch(49% 0.1467 29.64)",
+          "oklch(61% 0.1467 29.64)",
+          "oklch(72% 0.1467 29.64)",
+          "oklch(84% 0.1467 29.64)",
+          "oklch(95% 0.1467 29.64)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "danger-soft": {
+        "role": "neutral",
+        "displayName": "危险底色",
+        "tonalRamp": [
+          "oklch(15% 0.0147 44.18)",
+          "oklch(26% 0.0147 44.18)",
+          "oklch(38% 0.0147 44.18)",
+          "oklch(49% 0.0147 44.18)",
+          "oklch(61% 0.0147 44.18)",
+          "oklch(72% 0.0147 44.18)",
+          "oklch(84% 0.0147 44.18)",
+          "oklch(95% 0.0147 44.18)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "field": {
+        "role": "neutral",
+        "displayName": "输入表面",
+        "tonalRamp": [
+          "oklch(15% 0.0054 95.10)",
+          "oklch(26% 0.0054 95.10)",
+          "oklch(38% 0.0054 95.10)",
+          "oklch(49% 0.0054 95.10)",
+          "oklch(61% 0.0054 95.10)",
+          "oklch(72% 0.0054 95.10)",
+          "oklch(84% 0.0054 95.10)",
+          "oklch(95% 0.0054 95.10)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "dark-canvas": {
+        "role": "neutral",
+        "displayName": "深色 · 画布",
+        "tonalRamp": [
+          "oklch(15% 0.0015 197.05)",
+          "oklch(26% 0.0015 197.05)",
+          "oklch(38% 0.0015 197.05)",
+          "oklch(49% 0.0015 197.05)",
+          "oklch(61% 0.0015 197.05)",
+          "oklch(72% 0.0015 197.05)",
+          "oklch(84% 0.0015 197.05)",
+          "oklch(95% 0.0015 197.05)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "dark-surface": {
+        "role": "neutral",
+        "displayName": "深色 · 内容表面",
+        "tonalRamp": [
+          "oklch(15% 0.0034 164.79)",
+          "oklch(26% 0.0034 164.79)",
+          "oklch(38% 0.0034 164.79)",
+          "oklch(49% 0.0034 164.79)",
+          "oklch(61% 0.0034 164.79)",
+          "oklch(72% 0.0034 164.79)",
+          "oklch(84% 0.0034 164.79)",
+          "oklch(95% 0.0034 164.79)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "dark-sidebar": {
+        "role": "neutral",
+        "displayName": "深色 · 来源栏",
+        "tonalRamp": [
+          "oklch(15% 0.0035 164.75)",
+          "oklch(26% 0.0035 164.75)",
+          "oklch(38% 0.0035 164.75)",
+          "oklch(49% 0.0035 164.75)",
+          "oklch(61% 0.0035 164.75)",
+          "oklch(72% 0.0035 164.75)",
+          "oklch(84% 0.0035 164.75)",
+          "oklch(95% 0.0035 164.75)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "dark-panel": {
+        "role": "neutral",
+        "displayName": "深色 · 辅助面板",
+        "tonalRamp": [
+          "oklch(15% 0.0035 164.77)",
+          "oklch(26% 0.0035 164.77)",
+          "oklch(38% 0.0035 164.77)",
+          "oklch(49% 0.0035 164.77)",
+          "oklch(61% 0.0035 164.77)",
+          "oklch(72% 0.0035 164.77)",
+          "oklch(84% 0.0035 164.77)",
+          "oklch(95% 0.0035 164.77)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "dark-text": {
+        "role": "neutral",
+        "displayName": "深色 · 正文",
+        "tonalRamp": [
+          "oklch(15% 0.0107 106.60)",
+          "oklch(26% 0.0107 106.60)",
+          "oklch(38% 0.0107 106.60)",
+          "oklch(49% 0.0107 106.60)",
+          "oklch(61% 0.0107 106.60)",
+          "oklch(72% 0.0107 106.60)",
+          "oklch(84% 0.0107 106.60)",
+          "oklch(95% 0.0107 106.60)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "dark-muted": {
+        "role": "neutral",
+        "displayName": "深色 · 次要文字",
+        "tonalRamp": [
+          "oklch(15% 0.0122 128.65)",
+          "oklch(26% 0.0122 128.65)",
+          "oklch(38% 0.0122 128.65)",
+          "oklch(49% 0.0122 128.65)",
+          "oklch(61% 0.0122 128.65)",
+          "oklch(72% 0.0122 128.65)",
+          "oklch(84% 0.0122 128.65)",
+          "oklch(95% 0.0122 128.65)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "dark-line": {
+        "role": "neutral",
+        "displayName": "深色 · 边框",
+        "tonalRamp": [
+          "oklch(15% 0.0100 139.44)",
+          "oklch(26% 0.0100 139.44)",
+          "oklch(38% 0.0100 139.44)",
+          "oklch(49% 0.0100 139.44)",
+          "oklch(61% 0.0100 139.44)",
+          "oklch(72% 0.0100 139.44)",
+          "oklch(84% 0.0100 139.44)",
+          "oklch(95% 0.0100 139.44)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "dark-soft-line": {
+        "role": "neutral",
+        "displayName": "深色 · 行分隔线",
+        "tonalRamp": [
+          "oklch(15% 0.0117 135.01)",
+          "oklch(26% 0.0117 135.01)",
+          "oklch(38% 0.0117 135.01)",
+          "oklch(49% 0.0117 135.01)",
+          "oklch(61% 0.0117 135.01)",
+          "oklch(72% 0.0117 135.01)",
+          "oklch(84% 0.0117 135.01)",
+          "oklch(95% 0.0117 135.01)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "dark-hover": {
+        "role": "neutral",
+        "displayName": "深色 · 悬停",
+        "tonalRamp": [
+          "oklch(15% 0.0104 139.44)",
+          "oklch(26% 0.0104 139.44)",
+          "oklch(38% 0.0104 139.44)",
+          "oklch(49% 0.0104 139.44)",
+          "oklch(61% 0.0104 139.44)",
+          "oklch(72% 0.0104 139.44)",
+          "oklch(84% 0.0104 139.44)",
+          "oklch(95% 0.0104 139.44)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "dark-selected": {
+        "role": "neutral",
+        "displayName": "深色 · 选择",
+        "tonalRamp": [
+          "oklch(15% 0.0143 141.19)",
+          "oklch(26% 0.0143 141.19)",
+          "oklch(38% 0.0143 141.19)",
+          "oklch(49% 0.0143 141.19)",
+          "oklch(61% 0.0143 141.19)",
+          "oklch(72% 0.0143 141.19)",
+          "oklch(84% 0.0143 141.19)",
+          "oklch(95% 0.0143 141.19)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "dark-accent": {
+        "role": "primary",
+        "displayName": "深色 · 石墨强调色",
+        "tonalRamp": [
+          "oklch(15% 0.0128 255.51)",
+          "oklch(26% 0.0128 255.51)",
+          "oklch(38% 0.0128 255.51)",
+          "oklch(49% 0.0128 255.51)",
+          "oklch(61% 0.0128 255.51)",
+          "oklch(72% 0.0128 255.51)",
+          "oklch(84% 0.0128 255.51)",
+          "oklch(95% 0.0128 255.51)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "dark-on-accent": {
+        "role": "neutral",
+        "displayName": "深色 · 强调色前景",
+        "tonalRamp": [
+          "oklch(15% 0.0092 234.08)",
+          "oklch(26% 0.0092 234.08)",
+          "oklch(38% 0.0092 234.08)",
+          "oklch(49% 0.0092 234.08)",
+          "oklch(61% 0.0092 234.08)",
+          "oklch(72% 0.0092 234.08)",
+          "oklch(84% 0.0092 234.08)",
+          "oklch(95% 0.0092 234.08)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "dark-danger": {
+        "role": "neutral",
+        "displayName": "深色 · 危险动作",
+        "tonalRamp": [
+          "oklch(15% 0.0989 31.81)",
+          "oklch(26% 0.0989 31.81)",
+          "oklch(38% 0.0989 31.81)",
+          "oklch(49% 0.0989 31.81)",
+          "oklch(61% 0.0989 31.81)",
+          "oklch(72% 0.0989 31.81)",
+          "oklch(84% 0.0989 31.81)",
+          "oklch(95% 0.0989 31.81)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "dark-danger-soft": {
+        "role": "neutral",
+        "displayName": "深色 · 危险底色",
+        "tonalRamp": [
+          "oklch(15% 0.0349 32.63)",
+          "oklch(26% 0.0349 32.63)",
+          "oklch(38% 0.0349 32.63)",
+          "oklch(49% 0.0349 32.63)",
+          "oklch(61% 0.0349 32.63)",
+          "oklch(72% 0.0349 32.63)",
+          "oklch(84% 0.0349 32.63)",
+          "oklch(95% 0.0349 32.63)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "dark-field": {
+        "role": "neutral",
+        "displayName": "深色 · 输入表面",
+        "tonalRamp": [
+          "oklch(15% 0.0092 145.33)",
+          "oklch(26% 0.0092 145.33)",
+          "oklch(38% 0.0092 145.33)",
+          "oklch(49% 0.0092 145.33)",
+          "oklch(61% 0.0092 145.33)",
+          "oklch(72% 0.0092 145.33)",
+          "oklch(84% 0.0092 145.33)",
+          "oklch(95% 0.0092 145.33)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "accent-blue": {
+        "role": "primary",
+        "displayName": "靛蓝强调色",
+        "tonalRamp": [
+          "oklch(15% 0.1294 263.26)",
+          "oklch(26% 0.1294 263.26)",
+          "oklch(38% 0.1294 263.26)",
+          "oklch(49% 0.1294 263.26)",
+          "oklch(61% 0.1294 263.26)",
+          "oklch(72% 0.1294 263.26)",
+          "oklch(84% 0.1294 263.26)",
+          "oklch(95% 0.1294 263.26)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "accent-rust": {
+        "role": "primary",
+        "displayName": "陶土强调色",
+        "tonalRamp": [
+          "oklch(15% 0.1233 37.19)",
+          "oklch(26% 0.1233 37.19)",
+          "oklch(38% 0.1233 37.19)",
+          "oklch(49% 0.1233 37.19)",
+          "oklch(61% 0.1233 37.19)",
+          "oklch(72% 0.1233 37.19)",
+          "oklch(84% 0.1233 37.19)",
+          "oklch(95% 0.1233 37.19)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "accent-teal": {
+        "role": "primary",
+        "displayName": "青灰强调色",
+        "tonalRamp": [
+          "oklch(15% 0.0717 192.58)",
+          "oklch(26% 0.0717 192.58)",
+          "oklch(38% 0.0717 192.58)",
+          "oklch(49% 0.0717 192.58)",
+          "oklch(61% 0.0717 192.58)",
+          "oklch(72% 0.0717 192.58)",
+          "oklch(84% 0.0717 192.58)",
+          "oklch(95% 0.0717 192.58)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "dark-accent-blue": {
+        "role": "primary",
+        "displayName": "深色 · 靛蓝强调色",
+        "tonalRamp": [
+          "oklch(15% 0.0869 265.78)",
+          "oklch(26% 0.0869 265.78)",
+          "oklch(38% 0.0869 265.78)",
+          "oklch(49% 0.0869 265.78)",
+          "oklch(61% 0.0869 265.78)",
+          "oklch(72% 0.0869 265.78)",
+          "oklch(84% 0.0869 265.78)",
+          "oklch(95% 0.0869 265.78)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "dark-accent-rust": {
+        "role": "primary",
+        "displayName": "深色 · 陶土强调色",
+        "tonalRamp": [
+          "oklch(15% 0.0807 42.92)",
+          "oklch(26% 0.0807 42.92)",
+          "oklch(38% 0.0807 42.92)",
+          "oklch(49% 0.0807 42.92)",
+          "oklch(61% 0.0807 42.92)",
+          "oklch(72% 0.0807 42.92)",
+          "oklch(84% 0.0807 42.92)",
+          "oklch(95% 0.0807 42.92)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      },
+      "dark-accent-teal": {
+        "role": "primary",
+        "displayName": "深色 · 青灰强调色",
+        "tonalRamp": [
+          "oklch(15% 0.0588 185.16)",
+          "oklch(26% 0.0588 185.16)",
+          "oklch(38% 0.0588 185.16)",
+          "oklch(49% 0.0588 185.16)",
+          "oklch(61% 0.0588 185.16)",
+          "oklch(72% 0.0588 185.16)",
+          "oklch(84% 0.0588 185.16)",
+          "oklch(95% 0.0588 185.16)"
+        ],
+        "rampSource": "由源码颜色生成的 OKLCH 展示阶梯，未用作应用主题变量。"
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "分类标题",
+        "purpose": "内容主标题"
+      },
+      "app-title": {
+        "displayName": "应用名称",
+        "purpose": "顶栏标识"
+      },
+      "bookmark-title": {
+        "displayName": "书签名称",
+        "purpose": "列表正文"
+      },
+      "button-label": {
+        "displayName": "动作标签",
+        "purpose": "按钮文案"
+      },
+      "metadata": {
+        "displayName": "元信息",
+        "purpose": "路径、域名与数量"
+      }
+    },
+    "shadows": [
+      {
+        "name": "toast",
+        "value": "0 8px 25px #0002",
+        "purpose": "临时操作反馈"
+      },
+      {
+        "name": "dialog",
+        "value": "0 18px 70px #0004",
+        "purpose": "模态对话框"
+      },
+      {
+        "name": "target-drawer",
+        "value": "-12px 0 28px #0002",
+        "purpose": "窄窗口目标窗格"
+      }
+    ],
+    "motion": [
+      {
+        "name": "button-background",
+        "value": "background-color 120ms ease-out",
+        "purpose": "按钮背景切换，减少动态效果时关闭"
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide-min",
+        "value": "1600px"
+      },
+      {
+        "name": "desktop-max",
+        "value": "1150px"
+      },
+      {
+        "name": "drawer-max",
+        "value": "900px"
+      },
+      {
+        "name": "single-pane-max",
+        "value": "650px"
+      },
+      {
+        "name": "small-max",
+        "value": "400px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "主要按钮",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "动作按钮，共用最小高度、字阶与焦点规则。",
+      "html": "<button class=\"ds-button-primary\" type=\"button\">移动所选</button>",
+      "css": ".ds-button-primary{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:32px;border:1px solid var(--line,#ddddd5);border-radius:5px;padding:6px 11px;font-size:12px;line-height:18px;white-space:nowrap;cursor:pointer;transition:background-color 120ms ease-out;font-family:\"DM Sans\",\"PingFang SC\",\"Microsoft YaHei\",sans-serif;background:var(--accent,#353c49);color:var(--on-accent,#fff);border-color:var(--accent,#353c49);font-weight:550;} .ds-button-primary:focus-visible{outline:2px solid var(--accent,#353c49);outline-offset:2px} .ds-button-primary:disabled{opacity:.45;cursor:default} .ds-button-primary:hover:not(:disabled){filter:brightness(.92)} @media(prefers-reduced-motion:reduce){.ds-button-primary{transition:none}}"
+    },
+    {
+      "name": "安静按钮",
+      "kind": "button",
+      "refersTo": "button-quiet",
+      "description": "动作按钮，共用最小高度、字阶与焦点规则。",
+      "html": "<button class=\"ds-button-quiet\" type=\"button\">刷新</button>",
+      "css": ".ds-button-quiet{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:32px;border:1px solid var(--line,#ddddd5);border-radius:5px;padding:6px 11px;font-size:12px;line-height:18px;white-space:nowrap;cursor:pointer;transition:background-color 120ms ease-out;font-family:\"DM Sans\",\"PingFang SC\",\"Microsoft YaHei\",sans-serif;background:var(--surface,#fffefa);color:var(--text,#252522);} .ds-button-quiet:focus-visible{outline:2px solid var(--accent,#353c49);outline-offset:2px} .ds-button-quiet:disabled{opacity:.45;cursor:default} .ds-button-quiet:hover:not(:disabled){background:var(--hover,#f0efe9)} @media(prefers-reduced-motion:reduce){.ds-button-quiet{transition:none}}"
+    },
+    {
+      "name": "危险按钮",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "动作按钮，共用最小高度、字阶与焦点规则。",
+      "html": "<button class=\"ds-button-danger\" type=\"button\">确认删除</button>",
+      "css": ".ds-button-danger{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:32px;border:1px solid var(--line,#ddddd5);border-radius:5px;padding:6px 11px;font-size:12px;line-height:18px;white-space:nowrap;cursor:pointer;transition:background-color 120ms ease-out;font-family:\"DM Sans\",\"PingFang SC\",\"Microsoft YaHei\",sans-serif;background:var(--danger,#ad3f32);color:var(--surface,#fffefa);border-color:var(--danger,#ad3f32);} .ds-button-danger:focus-visible{outline:2px solid var(--accent,#353c49);outline-offset:2px} .ds-button-danger:disabled{opacity:.45;cursor:default} @media(prefers-reduced-motion:reduce){.ds-button-danger{transition:none}}"
+    },
+    {
+      "name": "文字按钮",
+      "kind": "button",
+      "refersTo": "button-text",
+      "description": "批量工具栏与轻量操作。",
+      "html": "<button class=\"ds-button-text\" type=\"button\">取消选择</button>",
+      "css": ".ds-button-text{padding:5px 0;border:0;background:none;color:var(--accent-text,#353c49);font-size:12px;cursor:pointer;font-family:\"DM Sans\",\"PingFang SC\",\"Microsoft YaHei\",sans-serif;}.ds-button-text:hover{text-decoration:underline;text-underline-offset:3px}.ds-button-text:focus-visible{outline:2px solid var(--accent,#353c49);outline-offset:2px}"
+    },
+    {
+      "name": "图标按钮",
+      "kind": "button",
+      "refersTo": "button-icon",
+      "description": "行内操作与关闭动作，使用可读标签。",
+      "html": "<button class=\"ds-button-icon\" type=\"button\" aria-label=\"关闭\"><svg width=\"17\" height=\"17\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\"><path d=\"m4 4 8 8M12 4l-8 8\"/></svg></button>",
+      "css": ".ds-button-icon{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;padding:5px;border:0;border-radius:4px;background:transparent;color:var(--muted,#686760);cursor:pointer}.ds-button-icon:hover{background:var(--hover,#f0efe9);color:var(--text,#252522)}.ds-button-icon:focus-visible{outline:2px solid var(--accent,#353c49);outline-offset:2px}"
+    },
+    {
+      "name": "搜索框",
+      "kind": "input",
+      "refersTo": "search-field",
+      "description": "输入外层呈现焦点边框。",
+      "html": "<label class=\"ds-search\"><input type=\"search\" aria-label=\"搜索书签\" placeholder=\"搜索名称、网址或分类\"></label>",
+      "css": ".ds-search{display:flex;min-height:36px;padding:0 11px;background:var(--panel,#f8f7f3);border:1px solid var(--line,#ddddd5);border-radius:5px}.ds-search input{width:100%;min-width:0;padding:8px 0;border:0;background:transparent;color:var(--text,#252522);font-size:12px;font-family:\"DM Sans\",\"PingFang SC\",\"Microsoft YaHei\",sans-serif;}.ds-search input::placeholder{color:var(--muted,#686760);opacity:1}.ds-search:focus-within{border-color:var(--accent,#353c49)}.ds-search input:focus{outline:none}"
+    },
+    {
+      "name": "来源导航",
+      "kind": "nav",
+      "refersTo": "source-navigation",
+      "description": "分类名称与右侧数量，当前项使用选择底色。",
+      "html": "<nav class=\"ds-nav\" aria-label=\"分类\"><button class=\"ds-nav-item ds-nav-current\" aria-current=\"page\"><span>工作资料</span><small>12</small></button></nav>",
+      "css": ".ds-nav-item{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border:0;border-radius:4px;background:transparent;color:var(--text,#252522);text-align:left;font-size:13px;cursor:pointer;font-family:\"DM Sans\",\"PingFang SC\",\"Microsoft YaHei\",sans-serif;}.ds-nav-item span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ds-nav-item small{font-size:11px;font-weight:400;font-variant-numeric:tabular-nums;color:var(--muted,#686760)}.ds-nav-item:hover{background:var(--hover,#f0efe9)}.ds-nav-current{background:var(--selected,#e7e7e0);font-weight:600}.ds-nav-item:focus-visible{outline:2px solid var(--accent,#353c49);outline-offset:2px}"
+    },
+    {
+      "name": "前缀标签",
+      "kind": "chip",
+      "refersTo": "prefix-tag",
+      "description": "书签名称前的静态前缀。",
+      "html": "<span class=\"ds-prefix\">资料</span>",
+      "css": ".ds-prefix{display:inline-block;max-width:12ch;padding:1px 5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:1px solid var(--line,#ddddd5);border-radius:3px;color:var(--muted,#686760);font-size:10px;line-height:1.5;font-family:\"DM Sans\",\"PingFang SC\",\"Microsoft YaHei\",sans-serif;}"
+    },
+    {
+      "name": "书签行",
+      "kind": "custom",
+      "refersTo": "bookmark-row",
+      "description": "连续列表中的名称与元信息。",
+      "html": "<div class=\"ds-row\"><input type=\"checkbox\" aria-label=\"选择示例资料\"><div><p class=\"ds-row-title\">示例资料</p><p class=\"ds-row-meta\">阅读资料 · example.com</p></div></div>",
+      "css": ".ds-row{display:flex;align-items:center;gap:12px;min-height:var(--row-height,68px);padding:12px 13px;border-bottom:1px solid var(--soft-line,#eae9e2);color:var(--text,#252522);font-family:\"DM Sans\",\"PingFang SC\",\"Microsoft YaHei\",sans-serif;}.ds-row:hover{background:var(--panel,#f8f7f3)}.ds-row input{width:13px;height:13px;accent-color:var(--accent,#353c49)}.ds-row input:focus-visible{outline:2px solid var(--accent,#353c49);outline-offset:2px}.ds-row-title{margin:0 0 5px;font-size:14px;font-weight:520;line-height:1.4}.ds-row-meta{margin:0;font-size:11px;line-height:1.5;color:var(--muted,#686760)}"
+    },
+    {
+      "name": "分类目录行",
+      "kind": "custom",
+      "refersTo": "category-directory-row",
+      "description": "独立目录模式中的分类行，展开二级，行内改名和新建，通过更多动作管理同级顺序、合并与删除。示例展示默认行外观。",
+      "html": "<ul class=\"ds-manager-list\"><li class=\"ds-manager-item\"><div class=\"ds-manager-row\"><button class=\"ds-manager-icon ds-manager-expand\" type=\"button\" aria-label=\"展开阅读\" aria-expanded=\"false\"><svg fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"m6 4 4 4-4 4\"/></svg></button><span class=\"ds-manager-folder\"><svg fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M1.5 4h5l1.5 2h6.5v7h-13V4Z\"/></svg></span><span class=\"ds-manager-name\">阅读</span><span class=\"ds-manager-count\">6</span><button class=\"ds-manager-icon\" type=\"button\" aria-label=\"添加二级分类\"><svg fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M8 3v10M3 8h10\"/></svg></button><button class=\"ds-manager-icon\" type=\"button\" aria-label=\"改名阅读\"><svg fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M11.5 3.5 14.5 6.5M3 13l1-4L12 1l3 3-8 8-4 1Z\"/></svg></button><button class=\"ds-manager-icon\" type=\"button\" aria-label=\"更多阅读操作\"><svg fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M3 7v2M8 7v2M13 7v2\"/></svg></button></div></li></ul>",
+      "css": ".ds-manager-list{list-style:none;padding:0;margin:0;color:var(--text,#252522);font-family:\"DM Sans\",\"PingFang SC\",\"Microsoft YaHei\",sans-serif;}.ds-manager-item{border-bottom:1px solid var(--soft-line,#eae9e2)}.ds-manager-row{display:flex;align-items:center;gap:8px;min-height:54px;padding:7px 5px}.ds-manager-row:hover,.ds-manager-row:focus-within{background:var(--panel,#f8f7f3)}.ds-manager-name{flex:1;min-width:0;font-size:14px;font-weight:550;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ds-manager-count{font-size:12px;font-variant-numeric:tabular-nums;color:var(--muted,#686760);margin:0 10px}.ds-manager-icon{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;width:30px;height:30px;padding:5px;border:0;border-radius:4px;background:transparent;color:var(--muted,#686760);cursor:pointer}.ds-manager-icon:hover{color:var(--text,#252522);background:var(--hover,#f0efe9)}.ds-manager-icon:focus-visible{outline:2px solid var(--accent,#353c49);outline-offset:2px}.ds-manager-row svg{width:17px;height:17px}.ds-manager-folder{display:inline-flex;color:var(--muted,#686760)}.ds-manager-expand[aria-expanded=\"true\"] svg{transform:rotate(90deg)}@media(max-width:650px){.ds-manager-row{gap:4px}.ds-manager-count{margin:0 2px}.ds-manager-icon{width:28px}.ds-manager-name{font-size:13px}}"
+    },
+    {
+      "name": "书签接入视图",
+      "kind": "custom",
+      "refersTo": "bookmark-connection-view",
+      "description": "使用我的书签进入独立内容视图，优先展示已有扩展的使用方法，首次安装步骤默认折叠。示例复现布局与 details 开关。",
+      "html": "<section class=\"ds-connection\" aria-label=\"书签接入说明\"><h2>使用我的 Chrome 书签</h2><p class=\"ds-connection-intro\">当前是公开示例预览。</p><section class=\"ds-connection-existing\"><h3>已经安装过</h3><p>从 Chrome 扩展菜单打开书签快捷整理。</p><button class=\"ds-connection-button\" type=\"button\">复制扩展管理页地址</button></section><details class=\"ds-connection-install\"><summary>首次安装扩展</summary><p>解压扩展包，在 Chrome 扩展管理页加载 extension 文件夹。</p></details></section>",
+      "css": ".ds-connection{padding:26px 28px;color:var(--text,#252522);font-family:\"DM Sans\",\"PingFang SC\",\"Microsoft YaHei\",sans-serif;}.ds-connection h2{margin:0;font-size:25px;line-height:1.4;font-weight:620;letter-spacing:-.025em}.ds-connection-intro{max-width:60ch;font-size:14px;line-height:1.8;color:var(--muted,#686760);margin:20px 0 30px}.ds-connection-existing{padding-bottom:24px;border-bottom:1px solid var(--line,#ddddd5)}.ds-connection-existing h3{font-size:15px;margin:0 0 10px}.ds-connection-existing p,.ds-connection-install p{font-size:13px;line-height:1.8;max-width:65ch}.ds-connection-button{min-height:32px;padding:6px 11px;border:1px solid var(--line,#ddddd5);border-radius:5px;background:var(--surface,#fffefa);color:var(--text,#252522);font-size:12px;line-height:18px;cursor:pointer;transition:background-color 120ms ease-out;font-family:\"DM Sans\",\"PingFang SC\",\"Microsoft YaHei\",sans-serif;}.ds-connection-button:hover{background:var(--hover,#f0efe9)}.ds-connection-button:focus-visible{outline:2px solid var(--accent,#353c49);outline-offset:2px}.ds-connection-install{padding:24px 0;border-bottom:1px solid var(--line,#ddddd5)}.ds-connection-install summary{font-size:15px;font-weight:550;cursor:pointer}.ds-connection-install summary:focus-visible{outline:2px solid var(--accent,#353c49);outline-offset:2px}@media(min-width:1600px){.ds-connection{padding-left:36px;padding-right:36px}}@media(max-width:1150px){.ds-connection{padding-left:20px;padding-right:20px}}@media(max-width:650px){.ds-connection{padding-top:20px}.ds-connection h2{font-size:22px}.ds-connection-intro{font-size:13px}}@media(prefers-reduced-motion:reduce){.ds-connection-button{transition:none}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "桌面收藏工作台",
+    "overview": "暖白内容区、石墨文字和细分隔线构成主界面。日常浏览时，来源分类、书签列表与移动目标分别占据独立窗格，列表保留名称、前缀、路径、域名和行内动作。分类整理与接入说明各自占用内容视图，切换时收起书签列表和右侧移动目标。\n\n外观设置提供浅色、深色及跟随系统，四种强调色与两种列表密度。背景图片显示在窗格外围，内容表面保持可读。记录依据当前源码，范围为视觉与交互规则，真实 Chrome 安装仍待验证。",
+    "keyCharacteristics": [
+      "连续列表与细分隔线。",
+      "名称和网址在行内编辑。",
+      "分类以可展开的两层目录操作，改名、新建与合并目标跟随所在行。",
+      "页头持续显示当前数据来源，接入说明使用独立内容视图。",
+      "色彩通过主题变量集中切换。",
+      "窄窗口通过收起窗格保留操作入口。"
+    ],
+    "rules": [
+      {
+        "name": "The Inline Editing Rule",
+        "body": "书签名称和网址的编辑器在原列表行展开，保存与取消动作跟随字段。",
+        "section": "components"
+      },
+      {
+        "name": "The Visible Focus Rule",
+        "body": "可交互控件保留强调色焦点提示，搜索输入通过外层边框显示焦点。",
+        "section": "components"
+      },
+      {
+        "name": "The Empty Folder State Rule",
+        "body": "书签数为零且仍有下级目录时，未搜索的空状态同时显示书签数、空子文件夹数和直接子文件夹名称，并提供管理入口。",
+        "section": "components"
+      },
+      {
+        "name": "The Deletion Scope Rule",
+        "body": "删除确认分别展示书签与文件夹数量，列明所选目录及其下级目录，零书签范围使用空文件夹文案。",
+        "section": "components"
+      }
+    ],
+    "dos": [
+      "Do 沿用语义颜色变量，让主题与强调色共同作用于控件状态。",
+      "Do 用细分隔线、字重和表面色区分列表层级。",
+      "Do 为批量动作显示当前选择范围，并保留撤销反馈。"
+    ],
+    "donts": [
+      "Don't 将行内编辑改为跳离列表的独立编辑页。",
+      "Don't 在紧凑密度中隐藏保存、取消或删除入口。",
+      "Don't 将背景图片作为输入字段和正文的直接底色。"
+    ]
+  }
+}

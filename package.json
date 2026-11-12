@@ -1,0 +1,39 @@
+{
+  "name": "bookmark-organizer",
+  "version": "2.2.1",
+  "private": true,
+  "description": "Local-first bookmark organizing with inline editing, drag-and-drop and undo.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.cjs",
+    "check": "node scripts/check.cjs",
+    "preview": "node scripts/python.cjs scripts/serve.py",
+    "build": "node scripts/python.cjs scripts/build.py",
+    "version": "node scripts/version.cjs",
+    "build:local": "node scripts/python.cjs scripts/build.py --sync-local",
+    "check:local": "node scripts/check.cjs --local",
+    "check:release": "node scripts/python.cjs scripts/check-release.py"
+  },
+  "files": [
+    "manifest.json",
+    "index.html",
+    "styles.css",
+    "seed.js",
+    "core.js",
+    "adapter.js",
+    "page-tools.js",
+    "appearance.js",
+    "app.js",
+    "background.js",
+    "assets/DM-Sans.ttf",
+    "assets/DM-Sans-OFL.txt",
+    "assets/icon-16.png",
+    "assets/icon-32.png",
+    "assets/icon-48.png",
+    "assets/icon-128.png",
+    "LICENSE"
+  ]
+}

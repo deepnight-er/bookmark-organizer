@@ -1,0 +1,36 @@
+{
+  "manifest_version": 3,
+  "name": "书签快捷整理",
+  "description": "列表内编辑名称和网址，读取网页标题，统一前缀，拖拽归类并支持撤销。",
+  "version": "2.2.1",
+  "minimum_chrome_version": "134",
+  "permissions": [
+    "bookmarks",
+    "storage"
+  ],
+  "optional_host_permissions": [
+    "https://*/*",
+    "http://*/*"
+  ],
+  "action": {
+    "default_title": "打开书签快捷整理",
+    "default_icon": {
+      "16": "assets/icon-16.png",
+      "32": "assets/icon-32.png",
+      "48": "assets/icon-48.png",
+      "128": "assets/icon-128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src http: https:; img-src 'self' data:"
+  },
+  "icons": {
+    "16": "assets/icon-16.png",
+    "32": "assets/icon-32.png",
+    "48": "assets/icon-48.png",
+    "128": "assets/icon-128.png"
+  }
+}

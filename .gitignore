@@ -1,0 +1,11 @@
+dist/
+.DS_Store
+node_modules/
+*.log
+exports/
+private/
+*.html.bak
+.impeccable/*
+!.impeccable/design.json
+
+__pycache__/
