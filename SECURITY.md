@@ -2,10 +2,14 @@
 
 本项目会处理书签名称、网址、目录和本机操作快照。安全反馈中的复现数据应使用虚构网址，并移除令牌、Cookie、内部系统地址和私人收藏。
 
-当前仓库为私有仓库，维护者账号为 `syj13143324`。已有访问权限的协作者可通过本仓库 Issue 提交反馈，内容向具有仓库访问权限的人员开放。入口为 [问题反馈](https://github.com/syj13143324/bookmark-organizer/issues/new)。
+## 联系方式
 
-转为公开仓库时，维护者需先启用 GitHub Private vulnerability reporting，并更新本说明中的正式漏洞报告入口。该功能由公开仓库的所有者或管理员配置，参见 [GitHub 官方说明](https://docs.github.com/en/code-security/how-tos/report-and-fix-vulnerabilities/configure-vulnerability-reporting/configure-for-a-repository)。
+请先通过仓库 Issue 提交简短的安全联系请求，注明受影响版本和问题类别，向维护者索取私密沟通方式。复现细节、利用方式及敏感附件请在确认私密渠道后发送。[联系维护者](https://github.com/deepnight-er/bookmark-organizer/issues/new)
 
-当前支持版本为 1.0.0 准备发布版。反馈建议使用公开示例复现，真实书签、访问令牌及账号凭据应在提交前移除。公开阶段的功能问题通过 Issue 报告，安全问题通过启用后的私密漏洞入口提交。
+## 报告内容
 
-报告建议包含受影响版本、复现步骤、预期结果和实际结果。现阶段的浏览器兼容及验收状态以 README.md 为准。
+请提供扩展版本、Chrome 版本、操作系统、复现步骤、预期结果、实际结果及影响范围。建议使用公开示例或虚构书签复现，附件中的个人信息应先移除。
+
+## 版本信息
+
+扩展版本可在“外观”中查看，发行状态见仓库 Releases，已发布版本的变更见[更新记录](CHANGELOG.md)。浏览器兼容范围见[兼容与验证](docs/ACCEPTANCE.md)。

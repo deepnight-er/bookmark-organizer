@@ -26,4 +26,4 @@ jobs:
       - name: Create draft release with verified artifacts
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" dist/*-extension.zip dist/*-source.zip dist/*.html --verify-tag --notes-file release-notes.md --draft
+        run: gh release create "$GITHUB_REF_NAME" dist/*-extension.zip dist/*-webstore.zip dist/*-source.zip dist/*.html --verify-tag --notes-file release-notes.md --draft

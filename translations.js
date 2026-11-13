@@ -1121,19 +1121,19 @@
     "it": "Nuova categoria",
     "ar": "فئة جديدة"
   },
-  "更新过本地代码时，先在扩展管理页点一次重新加载。": {
-    "zh-CN": "更新过本地代码时，先在扩展管理页点一次重新加载。",
-    "zh-TW": "更新過本地代碼時，先在擴展管理頁點一次重新加載。",
-    "en": "After updating local files, reload the extension on the extensions page.",
-    "ja": "ローカルファイルを更新したら、拡張機能のページで再読み込みしてください。",
-    "ko": "로컬 파일을 업데이트한 후 확장 프로그램 페이지에서 새로고침하세요.",
-    "es": "Tras actualizar los archivos locales, recarga la extensión desde su página de gestión.",
-    "fr": "Après la mise à jour des fichiers locaux, rechargez l’extension depuis sa page de gestion.",
-    "de": "Nach dem Aktualisieren lokaler Dateien die Erweiterung auf der Erweiterungsseite neu laden.",
-    "pt-BR": "Após atualizar os arquivos locais, recarregue a extensão na página de extensões.",
-    "ru": "После обновления локальных файлов перезагрузите расширение на странице расширений.",
-    "it": "Dopo aver aggiornato i file locali, ricarica l’estensione dalla pagina delle estensioni.",
-    "ar": "بعد تحديث الملفات المحلية، أعد تحميل الإضافة من صفحة الإضافات."
+  "更新扩展后，请在扩展管理页点击“重新加载”，再刷新书签页。": {
+    "zh-CN": "更新扩展后，请在扩展管理页点击“重新加载”，再刷新书签页。",
+    "zh-TW": "更新擴充功能後，請在擴充功能管理頁點選「重新載入」，再重新整理書籤頁。",
+    "en": "After updating the extension, click Reload on the extensions page, then refresh the bookmarks page.",
+    "ja": "拡張機能を更新したら、拡張機能の管理ページで再読み込みし、ブックマークのページも再読み込みしてください。",
+    "ko": "확장 프로그램을 업데이트한 후 관리 페이지에서 새로고침을 클릭하고 북마크 페이지도 새로고침하세요.",
+    "es": "Después de actualizar la extensión, haz clic en Recargar en la página de extensiones y actualiza la página de marcadores.",
+    "fr": "Après la mise à jour de l’extension, cliquez sur Actualiser dans la page des extensions, puis actualisez la page des favoris.",
+    "de": "Nach dem Aktualisieren der Erweiterung auf der Erweiterungsseite auf Neu laden klicken und anschließend die Lesezeichenseite aktualisieren.",
+    "pt-BR": "Após atualizar a extensão, clique em Recarregar na página de extensões e atualize a página de favoritos.",
+    "ru": "После обновления расширения нажмите «Обновить» на странице расширений, затем обновите страницу закладок.",
+    "it": "Dopo aver aggiornato l’estensione, fai clic su Ricarica nella pagina delle estensioni, poi aggiorna la pagina dei preferiti.",
+    "ar": "بعد تحديث الإضافة، انقر على إعادة التحميل في صفحة الإضافات، ثم حدّث صفحة الإشارات المرجعية."
   },
   "本机数据": {
     "zh-CN": "本机数据",
@@ -1750,20 +1750,6 @@
     "ru": "К закладкам",
     "it": "Torna ai segnalibri",
     "ar": "العودة إلى الإشارات المرجعية"
-  },
-  "这里记录对外发布的版本。": {
-    "zh-CN": "这里记录对外发布的版本。",
-    "zh-TW": "這裡記錄對外發布的版本。",
-    "en": "This page lists publicly released versions.",
-    "ja": "このページには公開済みバージョンを記録します。",
-    "ko": "이 페이지는 공개 출시된 버전을 기록합니다.",
-    "es": "Esta página muestra versiones publicadas.",
-    "fr": "Cette page répertorie les versions publiques.",
-    "de": "Diese Seite zeigt öffentlich veröffentlichte Versionen.",
-    "pt-BR": "Esta página lista versões lançadas publicamente.",
-    "ru": "Здесь перечислены публично выпущенные версии.",
-    "it": "Questa pagina elenca le versioni pubblicate.",
-    "ar": "تسرد هذه الصفحة الإصدارات المنشورة للعامة."
   },
   "选择一级分类，在列表上方筛选二级分类，或按名称、网址搜索。": {
     "zh-CN": "选择一级分类，在列表上方筛选二级分类，或按名称、网址搜索。",

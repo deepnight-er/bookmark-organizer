@@ -97,11 +97,12 @@ def main():
     DIST.mkdir(exist_ok=True)
     version = PACKAGE['version']
     extension = archive('bookmark-organizer-{}-extension.zip'.format(version), PACKAGE['files'], 'extension/')
+    archive('bookmark-organizer-{}-webstore.zip'.format(version), PACKAGE['files'], '')
     archive('bookmark-organizer-{}-source.zip'.format(version), SOURCE_FILES, 'bookmark-organizer/')
     html = standalone(version)
     if args.sync_local:
         sync_local(extension, html, version)
-    print('Built source, extension and standalone page for {}.'.format(version))
+    print('Built source, extension, webstore package and standalone page for {}.'.format(version))
 
 
 if __name__ == '__main__':

@@ -13,6 +13,7 @@ version = build.PACKAGE['version']
 
 for kind, files, prefix in [
     ('extension', build.PACKAGE['files'], 'extension/'),
+    ('webstore', build.PACKAGE['files'], ''),
     ('source', build.SOURCE_FILES, 'bookmark-organizer/')
 ]:
     path = ROOT / 'dist' / ('bookmark-organizer-{}-{}.zip'.format(version, kind))
