@@ -54,6 +54,9 @@ Releases.validateReleaseData(release, pkg.version);
 assert.equal(manifest.version_name, Releases.versionName(release), 'Run npm run releases to synchronize release display name');
 assert.equal(fs.readFileSync(path.join(root, 'CHANGELOG.md'), 'utf8'), Releases.changelog(release), 'Run npm run releases to synchronize public release notes');
 const translations = require('../translations.js');
+for (const match of html.matchAll(/\bdata-i18n(?:-(?:title|aria-label|placeholder|value))?="([^"]+)"/g)) {
+  assert(translations[match[1]], 'HTML message needs translations: ' + match[1]);
+}
 const languages = require('../i18n.js').languages.map(([code]) => code);
 for (const [source, values] of Object.entries(translations)) {
   for (const code of languages) {
