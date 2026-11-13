@@ -4,7 +4,9 @@
 
 ## 联系方式
 
-请先通过仓库 Issue 提交简短的安全联系请求，注明受影响版本和问题类别，向维护者索取私密沟通方式。复现细节、利用方式及敏感附件请在确认私密渠道后发送。[联系维护者](https://github.com/deepnight-er/bookmark-organizer/issues/new)
+安全漏洞请通过 GitHub 私密漏洞报告向维护者提交，报告内容在私密通道中处理。[提交私密漏洞报告](https://github.com/deepnight-er/bookmark-organizer/security/advisories/new)
+
+功能建议和一般使用问题可通过仓库 Issue 反馈。[提交使用反馈](https://github.com/deepnight-er/bookmark-organizer/issues/new)
 
 ## 报告内容
 
