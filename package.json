@@ -1,6 +1,6 @@
 {
   "name": "bookmark-organizer",
-  "version": "2.2.1",
+  "version": "1.0.0",
   "private": true,
   "description": "Local-first bookmark organizing with inline editing, drag-and-drop and undo.",
   "license": "MIT",
@@ -15,10 +15,14 @@
     "version": "node scripts/version.cjs",
     "build:local": "node scripts/python.cjs scripts/build.py --sync-local",
     "check:local": "node scripts/check.cjs --local",
-    "check:release": "node scripts/python.cjs scripts/check-release.py"
+    "check:release": "node scripts/python.cjs scripts/check-release.py",
+    "releases": "node scripts/releases.cjs"
   },
   "files": [
     "manifest.json",
+    "translations.js",
+    "i18n.js",
+    "releases.js",
     "index.html",
     "styles.css",
     "seed.js",
@@ -34,6 +38,18 @@
     "assets/icon-32.png",
     "assets/icon-48.png",
     "assets/icon-128.png",
-    "LICENSE"
+    "LICENSE",
+    "_locales/zh_CN/messages.json",
+    "_locales/zh_TW/messages.json",
+    "_locales/en/messages.json",
+    "_locales/ja/messages.json",
+    "_locales/ko/messages.json",
+    "_locales/es/messages.json",
+    "_locales/fr/messages.json",
+    "_locales/de/messages.json",
+    "_locales/pt_BR/messages.json",
+    "_locales/ru/messages.json",
+    "_locales/it/messages.json",
+    "_locales/ar/messages.json"
   ]
 }

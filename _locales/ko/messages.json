@@ -1,0 +1,11 @@
+{
+  "appName": {
+    "message": "북마크 정리"
+  },
+  "appDescription": {
+    "message": "북마크 이름과 URL을 바로 편집하고 제목 읽기, 접두어 설정, 드래그 정리 및 실행 취소를 지원합니다."
+  },
+  "openTitle": {
+    "message": "북마크 정리 열기"
+  }
+}

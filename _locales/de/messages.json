@@ -1,0 +1,11 @@
+{
+  "appName": {
+    "message": "Lesezeichen-Verwaltung"
+  },
+  "appDescription": {
+    "message": "Namen und URLs direkt bearbeiten, Seitentitel lesen, Präfixe setzen, per Ziehen organisieren und Änderungen rückgängig machen."
+  },
+  "openTitle": {
+    "message": "Lesezeichen-Verwaltung öffnen"
+  }
+}

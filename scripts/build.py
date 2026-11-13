@@ -14,10 +14,10 @@ PACKAGE = json.loads((ROOT / 'package.json').read_text(encoding='utf-8'))
 DIST = ROOT / 'dist'
 SOURCE_FILES = PACKAGE['files'] + [
     'package.json', 'README.md', 'PRIVACY.md', 'CHANGELOG.md', '.gitignore', 'PRODUCT.md', 'DESIGN.md',
-    '.impeccable/design.json', 'CONTRIBUTING.md', 'SECURITY.md', 'docs/images/organizer.png',
+    '.impeccable/design.json', 'CONTRIBUTING.md', 'SECURITY.md', 'docs/images/organizer.png', 'docs/ACCEPTANCE.md',
     '.github/workflows/check.yml', '.github/workflows/release.yml',
     'scripts/serve.py', 'scripts/build.py', 'scripts/check.cjs', 'scripts/version.cjs',
-    'scripts/check-release.py', 'scripts/python.cjs', 'tests/core.test.cjs'
+    'scripts/check-release.py', 'scripts/python.cjs', 'scripts/releases.cjs', 'tests/core.test.cjs', 'tests/i18n.test.cjs'
 ]
 
 

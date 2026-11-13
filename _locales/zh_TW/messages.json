@@ -1,0 +1,11 @@
+{
+  "appName": {
+    "message": "書籤整理"
+  },
+  "appDescription": {
+    "message": "列表內編輯名稱和網址，讀取網頁標題，統一前綴，拖拽歸類並支持撤銷。"
+  },
+  "openTitle": {
+    "message": "打開書籤整理"
+  }
+}

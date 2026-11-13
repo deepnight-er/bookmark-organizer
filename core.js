@@ -1,5 +1,6 @@
 (function () {
   'use strict';
+  const t = (typeof window !== 'undefined' && window.BookmarkI18n?.t) || ((message, ...values) => message.replace(/\{(\d+)\}/g, (_, index) => String(values[index])));
 
   function copy(value) {
     return JSON.parse(JSON.stringify(value));
@@ -81,7 +82,7 @@
       category: category ? category.title : '',
       section: afterCategory.map(parent => parent.title).join(' / '),
       sectionRoot: afterCategory[0]?.title || '',
-      path: category ? [category.title, ...afterCategory.map(parent => parent.title)].join(' / ') : '未归类',
+      path: category ? [category.title, ...afterCategory.map(parent => parent.title)].join(' / ') : t("未归类"),
       host: hostLabel(item.node.url)
     };
   }
@@ -89,7 +90,7 @@
   function hostLabel(url) {
     try {
       const parsed = new URL(url);
-      if (parsed.protocol === 'file:') return '本地文件';
+      if (parsed.protocol === 'file:') return t("本地文件");
       return parsed.host.replace(/^www\./, '') || parsed.protocol;
     } catch {
       return url;
@@ -100,11 +101,11 @@
     const indexed = indexTree(tree);
     const item = indexed.get(id);
     const target = indexed.get(parentId);
-    if (!item || item.node.parentId === '0' || !item.node.parentId || item.node.unmodifiable || item.node.folderType || item.parents.some(parent => parent.unmodifiable)) throw new Error('这项内容已不存在或无法移动。');
-    if (target && (target.node.id === id || target.parents.some(parent => parent.id === id))) throw new Error('不能移入自身或下级分类。');
-    if (!target || target.node.url || target.node.unmodifiable) throw new Error('目标文件夹已不存在或无法编辑。');
+    if (!item || item.node.parentId === '0' || !item.node.parentId || item.node.unmodifiable || item.node.folderType || item.parents.some(parent => parent.unmodifiable)) throw new Error(t("这项内容已不存在或无法移动。"));
+    if (target && (target.node.id === id || target.parents.some(parent => parent.id === id))) throw new Error(t("不能移入自身或下级分类。"));
+    if (!target || target.node.url || target.node.unmodifiable) throw new Error(t("目标文件夹已不存在或无法编辑。"));
     const oldParent = indexed.get(item.node.parentId);
-    if (!oldParent) throw new Error('原文件夹已不存在，请刷新后重试。');
+    if (!oldParent) throw new Error(t("原文件夹已不存在，请刷新后重试。"));
     const fromIndex = oldParent.node.children.findIndex(child => child.id === id);
     oldParent.node.children.splice(fromIndex, 1);
     target.node.children = target.node.children || [];
@@ -118,7 +119,7 @@
   }
 
   function resolveDestination(tree, target, syncing, nextId) {
-    if (!String(target?.category || '').trim()) throw new Error('请先新建或选择一个目标分类。');
+    if (!String(target?.category || '').trim()) throw new Error(t("请先新建或选择一个目标分类。"));
     const indexed = indexTree(tree);
     const root = [...indexed.values()].find(({ node }) => node.folderType === 'other' && Boolean(node.syncing) === syncing)
       || [...indexed.values()].find(({ node }) => node.parentId === '0' && node.title === '其他书签' && Boolean(node.syncing) === syncing);
@@ -133,7 +134,7 @@
       return folder;
     }
     if (!category) {
-      if (!root) throw new Error('找不到对应的账号或设备书签目录，请刷新后重试。');
+      if (!root) throw new Error(t("找不到对应的账号或设备书签目录，请刷新后重试。"));
       category = addFolder(target.category, root.node);
     }
     if (!target.section) return { folder: category, created };
@@ -159,7 +160,7 @@
 
   function exportHtml(tree, ignoredIds = []) {
     const ignored = new Set(ignoredIds);
-    const lines = ['<!DOCTYPE NETSCAPE-Bookmark-file-1>', '<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">', '<TITLE>我的书签</TITLE>', '<H1>我的书签</H1>', '<DL><p>'];
+    const lines = ['<!DOCTYPE NETSCAPE-Bookmark-file-1>', '<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">', '<TITLE>' + t('我的书签') + '</TITLE>', '<H1>' + t('我的书签') + '</H1>', '<DL><p>'];
     function visit(node, level) {
       if (ignored.has(node.id) && count(node) === 0) return;
       const indent = '    '.repeat(level);
@@ -179,14 +180,14 @@
   function bookmarkDetails(value, originalUrl) {
     const title = String(value.title || '').trim();
     const url = String(value.url || '').trim();
-    if (!title) throw new Error('请填写书签名称。');
-    if (!url) throw new Error('请填写书签网址。');
+    if (!title) throw new Error(t("请填写书签名称。"));
+    if (!url) throw new Error(t("请填写书签网址。"));
     if (url !== originalUrl) {
       let parsed;
       try { parsed = new URL(url); }
-      catch { throw new Error('网址格式不完整，请填写包含 https:// 的完整地址。'); }
-      if (!['http:', 'https:', 'file:'].includes(parsed.protocol)) throw new Error('新网址支持 HTTP、HTTPS 和本地文件地址。');
-      if (parsed.username || parsed.password) throw new Error('请移除网址中的用户名或密码后再保存。');
+      catch { throw new Error(t("网址格式不完整，请填写包含 https:// 的完整地址。")); }
+      if (!['http:', 'https:', 'file:'].includes(parsed.protocol)) throw new Error(t("新网址支持 HTTP、HTTPS 和本地文件地址。"));
+      if (parsed.username || parsed.password) throw new Error(t("请移除网址中的用户名或密码后再保存。"));
     }
     return { title, url };
   }
@@ -201,35 +202,35 @@
   function prefixedTitle(prefix, name) {
     const cleanPrefix = String(prefix || '').trim();
     const cleanName = String(name || '').trim();
-    if (!cleanName) throw new Error('请填写书签名称。');
-    if (/[\r\n]/.test(cleanPrefix) || cleanPrefix.includes(' · ')) throw new Error('前缀请填写一段短文字，例如“文档”或“原型”。');
+    if (!cleanName) throw new Error(t("请填写书签名称。"));
+    if (/[\r\n]/.test(cleanPrefix) || cleanPrefix.includes(' · ')) throw new Error(t("前缀请填写一段短文字，例如“文档”或“原型”。"));
     return cleanPrefix ? cleanPrefix + ' · ' + cleanName : cleanName;
   }
 
   function folderRenamePlan(tree, target, value) {
     const title = String(value || '').trim();
-    if (!title) throw new Error('请填写分类名称。');
+    if (!title) throw new Error(t("请填写分类名称。"));
     const catalogItems = catalog(tree, categoryNames(tree), []);
     const category = catalogItems.find(item => item.title === target.category);
-    if (!category?.variants.length) throw new Error('这个分类已不存在，请刷新后重试。');
+    if (!category?.variants.length) throw new Error(t("这个分类已不存在，请刷新后重试。"));
     const before = target.section || target.category;
     const rename = { category: target.category, section: target.section || '', before, after: title };
     if (before === title) return { rename, folders: [] };
     const siblings = target.section ? category.variants.flatMap(folder => folder.children || []).filter(node => !node.url) : catalogItems.flatMap(item => item.variants);
-    if (siblings.some(node => node.title === title)) throw new Error('同一级已有这个分类名称，请换一个名称。');
+    if (siblings.some(node => node.title === title)) throw new Error(t("同一级已有这个分类名称，请换一个名称。"));
     const folders = (target.section ? siblings.filter(node => node.title === before) : category.variants).map(node => {
-      if (node.unmodifiable || node.folderType) throw new Error('这个文件夹由浏览器或管理员管理，无法改名。');
+      if (node.unmodifiable || node.folderType) throw new Error(t("这个文件夹由浏览器或管理员管理，无法改名。"));
       return { id: node.id, parentId: node.parentId, before: { title: node.title }, after: { title } };
     });
-    if (!folders.length) throw new Error('这个二级分类已不存在，请刷新后重试。');
+    if (!folders.length) throw new Error(t("这个二级分类已不存在，请刷新后重试。"));
     return { rename, folders };
   }
 
   function folderDeletionIds(tree, target) {
     const category = catalog(tree, categoryNames(tree), []).find(item => item.title === target.category);
-    if (!category) throw new Error('分类已变化，请刷新后重试。');
+    if (!category) throw new Error(t("分类已变化，请刷新后重试。"));
     const folders = target.section ? category.variants.flatMap(folder => folder.children || []).filter(node => !node.url && node.title === target.section) : category.variants;
-    if (!folders.length) throw new Error('分类已变化，请刷新后重试。');
+    if (!folders.length) throw new Error(t("分类已变化，请刷新后重试。"));
     return folders.map(folder => folder.id);
   }
 
@@ -238,12 +239,12 @@
     const chosen = new Set(ids);
     const roots = [...chosen].map(id => {
       const item = indexed.get(id);
-      if (!item) throw new Error('部分内容已变化，请刷新后重新确认删除。');
+      if (!item) throw new Error(t("部分内容已变化，请刷新后重新确认删除。"));
       return item;
     }).filter(item => !item.parents.some(parent => chosen.has(parent.id)));
     const nodes = [];
     function visit(node) {
-      if (!node.parentId || node.parentId === '0' || node.folderType || node.unmodifiable) throw new Error('浏览器或管理员管理的文件夹无法删除。');
+      if (!node.parentId || node.parentId === '0' || node.folderType || node.unmodifiable) throw new Error(t("浏览器或管理员管理的文件夹无法删除。"));
       for (const child of [...(node.children || [])].reverse()) visit(child);
       const snapshot = copy(node);
       delete snapshot.children;
@@ -271,15 +272,17 @@
     const working = copy(tree);
     const steps = [];
     const originals = indexTree(tree);
+    const workingNodes = new Map([...indexTree(working)].map(([id, item]) => [id, item.node]));
     let sequence = 0;
-    const get = id => indexTree(working).get(id)?.node;
+    const get = id => workingNodes.get(id);
     function create(parentId, title, url) {
       const parent = get(parentId);
-      if (!parent || parent.url || parent.unmodifiable) throw new Error('目标目录无法编辑，请刷新后重试。');
+      if (!parent || parent.url || parent.unmodifiable) throw new Error(t("目标目录无法编辑，请刷新后重试。"));
       const node = { id: 'pending-structure-' + sequence++, parentId, title, index: parent.children.length, syncing: Boolean(parent.syncing) };
       if (url) node.url = url;
       else node.children = [];
       parent.children.push(node);
+      workingNodes.set(node.id, node);
       steps.push({ action: 'create', node: copy(node) });
       return node;
     }
@@ -292,13 +295,14 @@
       steps.push({ action: 'move', node: before, ...moved });
     }
     function remove(node) {
-      if (node.children.length) throw new Error('分类仍有内容，无法完成合并。');
+      if (node.children.length) throw new Error(t("分类仍有内容，无法完成合并。"));
       const parent = get(node.parentId);
       const snapshot = { ...node, index: parent.children.findIndex(child => child.id === node.id) };
       delete snapshot.children;
       if (originals.has(node.id)) snapshot.index = originals.get(node.parentId).node.children.findIndex(child => child.id === node.id);
       parent.children = parent.children.filter(child => child.id !== node.id);
       parent.children.forEach((child, index) => { child.index = index; });
+      workingNodes.delete(node.id);
       steps.push({ action: 'remove', node: snapshot });
     }
     function folder(parent, title) {
@@ -306,15 +310,15 @@
     }
     if (request.kind === 'create') {
       const title = String(request.title || '').trim();
-      if (!title) throw new Error('请填写分类名称。');
+      if (!title) throw new Error(t("请填写分类名称。"));
       const parent = get(request.parentId);
       const depth = indexTree(working).get(request.parentId)?.parents.length;
-      if (!parent || parent.url || depth < 1 || depth > 2 || parent.unmodifiable) throw new Error('请选择书签栏、其他书签或一级分类。最多支持两层分类。');
-      if (parent.children.some(child => !child.url && child.title === title)) throw new Error('该目录已有同名分类。');
+      if (!parent || parent.url || depth < 1 || depth > 2 || parent.unmodifiable) throw new Error(t("请选择书签栏、其他书签或一级分类。最多支持两层分类。"));
+      if (parent.children.some(child => !child.url && child.title === title)) throw new Error(t("该目录已有同名分类。"));
       create(parent.id, title);
     } else if (request.kind === 'order') {
       const ids = folderDeletionIds(working, request.target);
-      if (![ -1, 1 ].includes(request.direction)) throw new Error('排序方向无效。');
+      if (![ -1, 1 ].includes(request.direction)) throw new Error(t("排序方向无效。"));
       for (const id of ids) {
         const node = get(id);
         const parent = get(node.parentId);
@@ -325,7 +329,7 @@
         move(node, parent.id, parent.children.findIndex(child => child.id === neighbour.id));
       }
     } else if (request.kind === 'place') {
-      if (Boolean(request.source.section) !== Boolean(request.target.section)) throw new Error('请拖到同级分类之间调整顺序。');
+      if (Boolean(request.source.section) !== Boolean(request.target.section)) throw new Error(t("请拖到同级分类之间调整顺序。"));
       const sourceIds = folderDeletionIds(working, request.source);
       const targetIds = folderDeletionIds(working, request.target);
       if (sourceIds.some(id => targetIds.includes(id))) return { steps };
@@ -341,24 +345,27 @@
         const position = to - Number(from < to) + Number(Boolean(request.after));
         if (from !== position) move(node, parent.id, position);
       }
-      if (!matchingParent) throw new Error('分类位于不同目录，无法在这里调整顺序。');
+      if (!matchingParent) throw new Error(t("分类位于不同目录，无法在这里调整顺序。"));
     } else if (request.kind === 'merge') {
-      if (request.source.category === request.target.category && (request.source.section || '') === (request.target.section || '')) throw new Error('请选择另一个目标分类。');
-      if (Boolean(request.source.section) !== Boolean(request.target.section)) throw new Error('请选择同级分类进行合并。');
+      if (request.source.category === request.target.category && (request.source.section || '') === (request.target.section || '')) throw new Error(t("请选择另一个目标分类。"));
+      if (Boolean(request.source.section) !== Boolean(request.target.section)) throw new Error(t("请选择同级分类进行合并。"));
       const sourceIds = folderDeletionIds(working, request.source);
       const current = deletionPlan(working, sourceIds);
-      if (request.signature && deletionSignature(current) !== request.signature) throw new Error('来源分类已变化，请重新预览合并。');
+      if (request.signature && deletionSignature(current) !== request.signature) throw new Error(t("来源分类已变化，请重新预览合并。"));
       for (const id of sourceIds) {
         const source = get(id);
-        if (source.unmodifiable) throw new Error('来源分类无法编辑。');
+        if (source.unmodifiable) throw new Error(t("来源分类无法编辑。"));
         const resolved = resolveDestination(working, request.target, Boolean(source.syncing), () => 'pending-structure-' + sequence++);
-        for (const node of resolved.created) steps.push({ action: 'create', node: copy(node) });
+        for (const node of resolved.created) {
+          workingNodes.set(node.id, node);
+          steps.push({ action: 'create', node: copy(node) });
+        }
         const target = resolved.folder;
         for (const child of [...source.children]) {
-          if (!child.url && request.source.section) throw new Error('来源含有更深层文件夹，请先整理到两层分类后再合并。');
+          if (!child.url && request.source.section) throw new Error(t("来源含有更深层文件夹，请先整理到两层分类后再合并。"));
           if (child.url) move(child, target.id);
           else {
-            if (child.children.some(node => !node.url)) throw new Error('来源含有更深层文件夹，请先整理到两层分类后再合并。');
+            if (child.children.some(node => !node.url)) throw new Error(t("来源含有更深层文件夹，请先整理到两层分类后再合并。"));
             const section = folder(target, child.title);
             for (const bookmark of [...child.children]) move(bookmark, section.id);
             remove(child);
@@ -368,7 +375,7 @@
       }
     } else if (request.kind === 'import') {
       const root = editableRoots(working).find(node => node.id === request.parentId);
-      if (!root) throw new Error('请选择可编辑的浏览器目录。');
+      if (!root) throw new Error(t("请选择可编辑的浏览器目录。"));
       const seen = new Set(bookmarks(working).map(item => item.node.url));
       let skipped = 0;
       let imported = 0;
@@ -390,13 +397,13 @@
         }
       }
       return { steps, imported, skipped };
-    } else throw new Error('无法识别这个整理操作。');
+    } else throw new Error(t("无法识别这个整理操作。"));
     return { steps };
   }
 
   function importForest(value) {
     let nodes = Array.isArray(value) ? value : value?.tree;
-    if (!Array.isArray(nodes)) throw new Error('请选择书签 HTML 或完整备份 JSON。操作记录文件无法还原书签。');
+    if (!Array.isArray(nodes)) throw new Error(t("请选择书签 HTML 或完整备份 JSON。操作记录文件无法还原书签。"));
     if (nodes.length === 1 && nodes[0].id === '0') nodes = nodes[0].children || [];
     nodes = nodes.flatMap(node => node?.parentId === '0' || node?.folderType ? node.children || [] : [node]);
     let skipped = 0;
@@ -408,20 +415,20 @@
         const details = bookmarkDetails({ title: node.title || hostLabel(node.url), url: node.url });
         return details;
       } catch (failure) {
-        if (total > 20000) throw new Error('单次最多导入 20,000 条书签。');
+        if (total > 20000) throw new Error(t("单次最多导入 20,000 条书签。"));
         skipped++;
         return null;
       }
     }
     const forest = [];
     for (const node of nodes) {
-      if (!node || typeof node !== 'object') throw new Error('书签文件结构无效。');
+      if (!node || typeof node !== 'object') throw new Error(t("书签文件结构无效。"));
       if (node.url) { const item = bookmark(node); if (item) forest.push(item); continue; }
-      const category = { title: String(node.title || '导入书签'), children: [] };
+      const category = { title: String(node.title || t("导入书签")), children: [] };
       function visit(children, path, depth) {
-        if (depth > 30) throw new Error('文件夹层级过深，请检查导入文件。');
+        if (depth > 30) throw new Error(t("文件夹层级过深，请检查导入文件。"));
         for (const child of children || []) {
-          if (!child || typeof child !== 'object') throw new Error('书签文件结构无效。');
+          if (!child || typeof child !== 'object') throw new Error(t("书签文件结构无效。"));
           if (child.url) {
             const item = bookmark(child);
             if (!item) continue;
@@ -433,7 +440,7 @@
               section.children.push(item);
             }
           } else {
-            const next = [...path, String(child.title || '未命名分类')];
+            const next = [...path, String(child.title || t("未命名分类"))];
             if (next.length > 1) flattened++;
             if (!(child.children || []).length) category.children.push({ title: next.join(' / '), children: [] });
             visit(child.children, next, depth + 1);
@@ -457,7 +464,104 @@
     return [...groups.values()].filter(group => group.length > 1);
   }
 
-  const api = { folderCount, folderSummary, editableRoots, structurePlan, importForest, duplicateGroups, copy, indexTree, bookmarks, count, categoryNames, catalog, describe, hostLabel, moveInTree, resolveDestination, externalLink, exportHtml, bookmarkDetails, titleParts, prefixedTitle, folderRenamePlan, folderDeletionIds, deletionPlan, deletionSignature };
+  function operationKey(entry) {
+    return entry.operationId || JSON.stringify([
+      entry.at, entry.type || 'move', entry.id,
+      ...['moves', 'created', 'removed', 'folders', 'edits'].map(key => (entry[key] || []).map(item => item.id))
+    ]);
+  }
+
+  function filterCategories(categories, query) {
+    const search = query.trim().toLocaleLowerCase();
+    if (!search) return categories;
+    return categories.flatMap(category => {
+      const matches = category.title.toLocaleLowerCase().includes(search);
+      const sections = matches ? category.sections : category.sections.filter(section => section.title.toLocaleLowerCase().includes(search));
+      return matches || sections.length ? [{ ...category, sections }] : [];
+    });
+  }
+
+  function stampOperations(state) {
+    for (const entry of [...state.history, ...state.changes]) {
+      entry.operationId = operationKey(entry);
+      if (entry.type === 'undo') entry.entry.operationId = operationKey(entry.entry);
+    }
+  }
+
+  function operationResources(entry) {
+    const ids = new Set();
+    if (entry.type === 'update') ids.add(entry.id);
+    for (const edit of entry.edits || []) ids.add(edit.id);
+    for (const item of [...(entry.moves || []), ...(entry.created || []), ...(entry.removed || []), ...(entry.folders || [])]) {
+      for (const key of ['id', 'parentId', 'fromParentId', 'toParentId']) if (item[key]) ids.add(item[key]);
+    }
+    if (entry.pending) { ids.add(entry.pending.id); ids.add(entry.pending.parentId); }
+    return ids;
+  }
+
+  function undoAvailability(history, key) {
+    const index = history.findIndex(entry => operationKey(entry) === key);
+    if (index < 0) return { index, reason: t("这次操作已撤销或已超出可撤销范围。") };
+    const resources = operationResources(history[index]);
+    const related = history.slice(index + 1).some(entry => [...operationResources(entry)].some(id => resources.has(id)));
+    return { index, reason: related ? t("后面还有相关更改，请先撤销较新的记录。") : '' };
+  }
+
+  function operationTitle(entry) {
+    if (entry.type === 'update') return t("修改书签");
+    if (entry.type === 'edit') return t("设置前缀 · {0} 条书签", entry.edits.length);
+    if (entry.type === 'folderRename') return t("分类改名");
+    if (entry.type === 'delete') {
+      const links = entry.removed.filter(node => node.url).length;
+      const folders = entry.removed.length - links;
+      return t("删除 ") + [links ? t("{0} 条书签", links) : '', folders ? t("{0} 个分类", folders) : ''].filter(Boolean).join(t('、'));
+    }
+    if (entry.type === 'structure') return { create: t("新建分类"), order: t("调整分类顺序"), place: t("调整分类顺序"), merge: t("合并分类"), import: t("导入书签") }[entry.kind] || t("调整分类");
+    return entry.moves?.length ? t("移动 {0} 条书签", entry.moves.length) : t("添加书签");
+  }
+
+  function operationLocations(entry, tree) {
+    const indexed = indexTree(tree);
+    const snapshots = new Map((entry.removed || []).map(node => [node.id, node]));
+    for (const node of entry.created || []) snapshots.set(node.id, { ...node, parentId: node.toParentId });
+    function folderPath(id) {
+      const names = [];
+      const visited = new Set();
+      while (id && !visited.has(id)) {
+        visited.add(id);
+        const node = indexed.get(id)?.node || snapshots.get(id);
+        if (!node) return t("旧记录未保存位置");
+        if (node.title && node.parentId !== '0' && !node.folderType) names.unshift(node.title);
+        id = node.parentId;
+      }
+      return names.join(' / ') || t("浏览器书签目录");
+    }
+    const ids = new Set();
+    for (const moved of entry.moves || []) { ids.add(moved.fromParentId); ids.add(moved.toParentId); }
+    for (const created of entry.created || []) ids.add(created.toParentId);
+    for (const removed of entry.removed || []) ids.add(removed.parentId);
+    const locations = { ...entry.locations };
+    for (const id of ids) if (id && !locations[id]) locations[id] = folderPath(id);
+    return locations;
+  }
+
+  function operationDetails(entry, tree) {
+    if (Array.isArray(entry.details)) return entry.details;
+    const indexed = indexTree(tree);
+    const locations = operationLocations(entry, tree);
+    const folderPath = id => locations[id] || t("浏览器书签目录");
+    const details = [];
+    for (const edit of entry.edits || (entry.type === 'update' ? [entry] : [])) {
+      details.push({ title: edit.before.title, before: edit.before.title, after: edit.after.title, beforeUrl: edit.before.url, afterUrl: edit.after.url });
+    }
+    for (const folder of entry.folders || []) details.push({ title: t("分类名称"), before: folder.before.title, after: folder.after.title });
+    for (const moved of entry.moves || []) details.push({ title: moved.title || indexed.get(moved.id)?.node.title || t("书签或分类 #") + moved.id, before: moved.fromPath || folderPath(moved.fromParentId), after: moved.toPath || folderPath(moved.toParentId), position: moved.fromParentId === moved.toParentId ? t("第 {0} 位 → 第 {1} 位", moved.fromIndex + 1, moved.toIndex + 1) : '' });
+    for (const created of entry.created || []) details.push({ title: created.title || t("新建条目"), before: '', after: t("新建于 ") + folderPath(created.toParentId), afterUrl: created.url });
+    for (const removed of entry.removed || []) details.push({ title: removed.title, before: folderPath(removed.parentId), after: t("已删除"), beforeUrl: removed.url });
+    return details;
+  }
+
+  const api = { filterCategories, operationKey, stampOperations, undoAvailability, operationTitle, operationLocations, operationDetails, folderCount, folderSummary, editableRoots, structurePlan, importForest, duplicateGroups, copy, indexTree, bookmarks, count, categoryNames, catalog, describe, hostLabel, moveInTree, resolveDestination, externalLink, exportHtml, bookmarkDetails, titleParts, prefixedTitle, folderRenamePlan, folderDeletionIds, deletionPlan, deletionSignature };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else window.BookmarkCore = api;
 })();

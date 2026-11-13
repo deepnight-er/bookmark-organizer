@@ -37,7 +37,6 @@ assert.equal(ids.length, new Set(ids).size, 'Duplicate HTML IDs');
 for (const match of html.matchAll(/(?:src|href)="([^"#]+)"/g)) {
   if (!match[1].startsWith('http') && match[1] !== 'download/extension.zip') assert(pkg.files.includes(match[1]), 'Unpackaged HTML asset');
 }
-console.log(`Release checks passed. ${Core.bookmarks(seed.tree).length} public demo bookmarks, ${pkg.files.length} allowlisted files.`);
 
 if (process.argv.includes('--local')) {
   const configPath = path.join(root, 'private/local-targets.json');
@@ -48,3 +47,21 @@ if (process.argv.includes('--local')) {
   }
   console.log(`Local runtime matches version ${pkg.version}, ${pkg.files.length} files.`);
 }
+
+const Releases = require('./releases.cjs');
+const release = Releases.readReleaseData();
+Releases.validateReleaseData(release, pkg.version);
+assert.equal(manifest.version_name, Releases.versionName(release), 'Run npm run releases to synchronize release display name');
+assert.equal(fs.readFileSync(path.join(root, 'CHANGELOG.md'), 'utf8'), Releases.changelog(release), 'Run npm run releases to synchronize public release notes');
+const translations = require('../translations.js');
+const languages = require('../i18n.js').languages.map(([code]) => code);
+for (const [source, values] of Object.entries(translations)) {
+  for (const code of languages) {
+    assert.equal(typeof values[code], 'string', 'Missing translation: ' + code + ' ' + source);
+    const placeholders = value => [...value.matchAll(/\{\d+\}/g)].map(match => match[0]).sort();
+    assert.deepEqual(placeholders(source), placeholders(values[code]), 'Translation placeholder mismatch');
+  }
+}
+for (const feature of [...release.upcoming, ...release.published.flatMap(entry => entry.features)]) assert(translations[feature], 'Release note needs translations');
+
+console.log(`Release checks passed. ${Core.bookmarks(seed.tree).length} public demo bookmarks, ${pkg.files.length} allowlisted files.`);

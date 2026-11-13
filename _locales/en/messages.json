@@ -1,0 +1,11 @@
+{
+  "appName": {
+    "message": "Bookmark Organizer"
+  },
+  "appDescription": {
+    "message": "Edit bookmark names and URLs inline, read page titles, set prefixes, drag to organize and undo changes."
+  },
+  "openTitle": {
+    "message": "Open Bookmark Organizer"
+  }
+}

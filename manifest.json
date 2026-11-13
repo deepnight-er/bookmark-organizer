@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "书签快捷整理",
-  "description": "列表内编辑名称和网址，读取网页标题，统一前缀，拖拽归类并支持撤销。",
-  "version": "2.2.1",
+  "name": "__MSG_appName__",
+  "description": "__MSG_appDescription__",
+  "version": "1.0.0",
   "minimum_chrome_version": "134",
   "permissions": [
     "bookmarks",
@@ -13,7 +13,7 @@
     "http://*/*"
   ],
   "action": {
-    "default_title": "打开书签快捷整理",
+    "default_title": "__MSG_openTitle__",
     "default_icon": {
       "16": "assets/icon-16.png",
       "32": "assets/icon-32.png",
@@ -32,5 +32,7 @@
     "32": "assets/icon-32.png",
     "48": "assets/icon-48.png",
     "128": "assets/icon-128.png"
-  }
+  },
+  "version_name": "1.0.0 Preview",
+  "default_locale": "zh_CN"
 }

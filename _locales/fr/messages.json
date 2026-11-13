@@ -1,0 +1,11 @@
+{
+  "appName": {
+    "message": "Gestionnaire de favoris"
+  },
+  "appDescription": {
+    "message": "Modifiez les noms et URL sur place, lisez les titres, définissez des préfixes, organisez par glissement et annulez."
+  },
+  "openTitle": {
+    "message": "Ouvrir le gestionnaire de favoris"
+  }
+}

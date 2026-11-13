@@ -1,0 +1,11 @@
+{
+  "appName": {
+    "message": "Organizador de marcadores"
+  },
+  "appDescription": {
+    "message": "Edita nombres y URL en la lista, lee títulos, establece prefijos, arrastra para organizar y deshaz cambios."
+  },
+  "openTitle": {
+    "message": "Abrir Organizador de marcadores"
+  }
+}

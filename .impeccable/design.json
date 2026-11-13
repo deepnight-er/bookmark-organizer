@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-12T10:37:39.271980+00:00",
+  "generatedAt": "2026-11-13T01:17:40.451540+00:00",
   "title": "Design System: 书签整理",
   "extensions": {
     "colorMeta": {
@@ -620,7 +620,7 @@
       "kind": "button",
       "refersTo": "button-primary",
       "description": "动作按钮，共用最小高度、字阶与焦点规则。",
-      "html": "<button class=\"ds-button-primary\" type=\"button\">移动所选</button>",
+      "html": "<button class=\"ds-button-primary\" type=\"button\">移动 2 条书签</button>",
       "css": ".ds-button-primary{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:32px;border:1px solid var(--line,#ddddd5);border-radius:5px;padding:6px 11px;font-size:12px;line-height:18px;white-space:nowrap;cursor:pointer;transition:background-color 120ms ease-out;font-family:\"DM Sans\",\"PingFang SC\",\"Microsoft YaHei\",sans-serif;background:var(--accent,#353c49);color:var(--on-accent,#fff);border-color:var(--accent,#353c49);font-weight:550;} .ds-button-primary:focus-visible{outline:2px solid var(--accent,#353c49);outline-offset:2px} .ds-button-primary:disabled{opacity:.45;cursor:default} .ds-button-primary:hover:not(:disabled){filter:brightness(.92)} @media(prefers-reduced-motion:reduce){.ds-button-primary{transition:none}}"
     },
     {
@@ -628,7 +628,7 @@
       "kind": "button",
       "refersTo": "button-quiet",
       "description": "动作按钮，共用最小高度、字阶与焦点规则。",
-      "html": "<button class=\"ds-button-quiet\" type=\"button\">刷新</button>",
+      "html": "<button class=\"ds-button-quiet\" type=\"button\">返回书签</button>",
       "css": ".ds-button-quiet{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:32px;border:1px solid var(--line,#ddddd5);border-radius:5px;padding:6px 11px;font-size:12px;line-height:18px;white-space:nowrap;cursor:pointer;transition:background-color 120ms ease-out;font-family:\"DM Sans\",\"PingFang SC\",\"Microsoft YaHei\",sans-serif;background:var(--surface,#fffefa);color:var(--text,#252522);} .ds-button-quiet:focus-visible{outline:2px solid var(--accent,#353c49);outline-offset:2px} .ds-button-quiet:disabled{opacity:.45;cursor:default} .ds-button-quiet:hover:not(:disabled){background:var(--hover,#f0efe9)} @media(prefers-reduced-motion:reduce){.ds-button-quiet{transition:none}}"
     },
     {
@@ -651,7 +651,7 @@
       "name": "图标按钮",
       "kind": "button",
       "refersTo": "button-icon",
-      "description": "行内操作与关闭动作，使用可读标签。",
+      "description": "关闭等通用动作使用 28px 图标按钮，书签行尾桌面使用 30px。页头撤销与刷新使用 16px 圆弧图标和文字的安静按钮。每项提供可读标签。",
       "html": "<button class=\"ds-button-icon\" type=\"button\" aria-label=\"关闭\"><svg width=\"17\" height=\"17\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\"><path d=\"m4 4 8 8M12 4l-8 8\"/></svg></button>",
       "css": ".ds-button-icon{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;padding:5px;border:0;border-radius:4px;background:transparent;color:var(--muted,#686760);cursor:pointer}.ds-button-icon:hover{background:var(--hover,#f0efe9);color:var(--text,#252522)}.ds-button-icon:focus-visible{outline:2px solid var(--accent,#353c49);outline-offset:2px}"
     },
@@ -659,15 +659,15 @@
       "name": "搜索框",
       "kind": "input",
       "refersTo": "search-field",
-      "description": "输入外层呈现焦点边框。",
-      "html": "<label class=\"ds-search\"><input type=\"search\" aria-label=\"搜索书签\" placeholder=\"搜索名称、网址或分类\"></label>",
-      "css": ".ds-search{display:flex;min-height:36px;padding:0 11px;background:var(--panel,#f8f7f3);border:1px solid var(--line,#ddddd5);border-radius:5px}.ds-search input{width:100%;min-width:0;padding:8px 0;border:0;background:transparent;color:var(--text,#252522);font-size:12px;font-family:\"DM Sans\",\"PingFang SC\",\"Microsoft YaHei\",sans-serif;}.ds-search input::placeholder{color:var(--muted,#686760);opacity:1}.ds-search:focus-within{border-color:var(--accent,#353c49)}.ds-search input:focus{outline:none}"
+      "description": "列表工具栏右侧搜索使用字段表面与弱文字色描边，悬停和聚焦时使用强调色描边。桌面宽 270px，至多 1150px 时 235px，至多 650px 时独占首行。右侧保留快捷键键帽。",
+      "html": "<label class=\"ds-search\"><svg viewBox=\"0 0 20 20\" aria-hidden=\"true\"><circle cx=\"8.5\" cy=\"8.5\" r=\"5.5\"/><path d=\"m13 13 4 4\"/></svg><input type=\"search\" aria-label=\"搜索书签\" placeholder=\"搜索名称、网址或分类\"><kbd>⌘ K</kbd></label>",
+      "css": ".ds-search{display:flex;align-items:center;gap:8px;width:270px;max-width:100%;min-height:32px;padding:0 9px;background:var(--field,#fffefa);border:1px solid var(--muted,#686760);border-radius:4px}.ds-search>svg{width:16px;height:16px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;color:var(--muted,#686760)}.ds-search input{width:100%;min-width:0;padding:7px 0;border:0;background:transparent;color:var(--text,#252522);font-size:12px;font-family:\"DM Sans\",\"PingFang SC\",\"Microsoft YaHei\",sans-serif}.ds-search input::placeholder{color:var(--muted,#686760);opacity:1}.ds-search:hover,.ds-search:focus-within{border-color:var(--accent,#353c49)}.ds-search input:focus{outline:none}.ds-search kbd{color:var(--text,#252522);background:var(--panel,#f8f7f3);border:1px solid var(--line,#ddddd5);border-radius:3px;padding:1px 4px;font-size:10px;white-space:nowrap;font-family:inherit}@media(max-width:1150px){.ds-search{width:235px}}@media(max-width:650px){.ds-search{width:100%}}"
     },
     {
       "name": "来源导航",
       "kind": "nav",
       "refersTo": "source-navigation",
-      "description": "分类名称与右侧数量，当前项使用选择底色。",
+      "description": "分类名称与右侧数量，当前项使用选择底色。管理入口位于“我的分类”旁，窄窗口位于“浏览分类”下拉框旁。页头另提供操作记录入口。",
       "html": "<nav class=\"ds-nav\" aria-label=\"分类\"><button class=\"ds-nav-item ds-nav-current\" aria-current=\"page\"><span>工作资料</span><small>12</small></button></nav>",
       "css": ".ds-nav-item{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border:0;border-radius:4px;background:transparent;color:var(--text,#252522);text-align:left;font-size:13px;cursor:pointer;font-family:\"DM Sans\",\"PingFang SC\",\"Microsoft YaHei\",sans-serif;}.ds-nav-item span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ds-nav-item small{font-size:11px;font-weight:400;font-variant-numeric:tabular-nums;color:var(--muted,#686760)}.ds-nav-item:hover{background:var(--hover,#f0efe9)}.ds-nav-current{background:var(--selected,#e7e7e0);font-weight:600}.ds-nav-item:focus-visible{outline:2px solid var(--accent,#353c49);outline-offset:2px}"
     },
@@ -675,55 +675,82 @@
       "name": "前缀标签",
       "kind": "chip",
       "refersTo": "prefix-tag",
-      "description": "书签名称前的静态前缀。",
+      "description": "书签名称前的静态前缀使用选择底色、正文色与零边框，字号 11px、字重 450。书签行选中时改用内容表面底色。",
       "html": "<span class=\"ds-prefix\">资料</span>",
-      "css": ".ds-prefix{display:inline-block;max-width:12ch;padding:1px 5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:1px solid var(--line,#ddddd5);border-radius:3px;color:var(--muted,#686760);font-size:10px;line-height:1.5;font-family:\"DM Sans\",\"PingFang SC\",\"Microsoft YaHei\",sans-serif;}"
+      "css": ".ds-prefix{display:inline-block;max-width:12ch;padding:1px 5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:0;border-radius:3px;background:var(--selected,#e7e7e0);color:var(--text,#252522);font-size:11px;line-height:1.5;font-weight:450;font-family:\"DM Sans\",\"PingFang SC\",\"Microsoft YaHei\",sans-serif}.ds-prefix-selected .ds-prefix{background:var(--surface,#fffefa)}"
     },
     {
       "name": "书签行",
       "kind": "custom",
       "refersTo": "bookmark-row",
-      "description": "连续列表中的名称与元信息。",
-      "html": "<div class=\"ds-row\"><input type=\"checkbox\" aria-label=\"选择示例资料\"><div><p class=\"ds-row-title\">示例资料</p><p class=\"ds-row-meta\">阅读资料 · example.com</p></div></div>",
-      "css": ".ds-row{display:flex;align-items:center;gap:12px;min-height:var(--row-height,68px);padding:12px 13px;border-bottom:1px solid var(--soft-line,#eae9e2);color:var(--text,#252522);font-family:\"DM Sans\",\"PingFang SC\",\"Microsoft YaHei\",sans-serif;}.ds-row:hover{background:var(--panel,#f8f7f3)}.ds-row input{width:13px;height:13px;accent-color:var(--accent,#353c49)}.ds-row input:focus-visible{outline:2px solid var(--accent,#353c49);outline-offset:2px}.ds-row-title{margin:0 0 5px;font-size:14px;font-weight:520;line-height:1.4}.ds-row-meta{margin:0;font-size:11px;line-height:1.5;color:var(--muted,#686760)}"
+      "description": "连续列表中的名称与元信息，行尾按打开、编辑、删除顺序组成同尺寸图标组。桌面 30px，窄窗口宽 28px，保留焦点及危险动作反馈。前缀使用选择底色，选中行上的前缀使用内容表面。",
+      "html": "<div class=\"ds-row\"><input type=\"checkbox\" aria-label=\"选择示例资料\"><div class=\"ds-row-copy\"><p class=\"ds-row-title\"><span class=\"ds-row-prefix\">资料</span><span class=\"ds-row-name\">示例资料</span></p><p class=\"ds-row-meta\">阅读资料 · example.com</p></div><div class=\"ds-row-actions\"><a class=\"ds-row-icon\" href=\"https://example.com\" target=\"_blank\" rel=\"noopener noreferrer\" aria-label=\"打开示例资料\"><svg viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M6 3H3v10h10v-3M9 2h5v5M14 2 7 9\"/></svg></a><button class=\"ds-row-icon\" type=\"button\" aria-label=\"编辑示例资料\"><svg viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M11.5 3.5 14.5 6.5M3 13l1-4L12 1l3 3-8 8-4 1Z\"/></svg></button><button class=\"ds-row-icon ds-row-delete\" type=\"button\" aria-label=\"删除示例资料\"><svg viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M2.5 4.5h11M6 2.5h4M4 4.5l.5 9h7l.5-9M6.5 7v4M9.5 7v4\"/></svg></button></div></div>",
+      "css": ".ds-row{display:flex;align-items:center;gap:12px;min-height:var(--row-height,68px);padding:12px 13px;border-bottom:1px solid var(--soft-line,#eae9e2);color:var(--text,#252522);font-family:\"DM Sans\",\"PingFang SC\",\"Microsoft YaHei\",sans-serif;}.ds-row:hover{background:var(--panel,#f8f7f3)}.ds-row input{width:13px;height:13px;accent-color:var(--accent,#353c49)}.ds-row input:focus-visible{outline:2px solid var(--accent,#353c49);outline-offset:2px}.ds-row-title{margin:0 0 5px;font-size:14px;font-weight:520;line-height:1.4}.ds-row-meta{margin:0;font-size:11px;line-height:1.5;color:var(--muted,#686760)}.ds-row-copy{flex:1;min-width:0}.ds-row-actions{display:flex;align-items:center;gap:2px;flex-shrink:0}.ds-row-icon{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;width:30px;height:30px;padding:5px;border:0;border-radius:4px;background:transparent;color:var(--muted,#686760);text-decoration:none;cursor:pointer}.ds-row-icon svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}.ds-row-icon:hover{background:var(--hover,#f0efe9);color:var(--text,#252522)}.ds-row-delete:hover{background:var(--danger-soft,#faeee9);color:var(--danger,#ad3f32)}.ds-row-icon:focus-visible{outline:2px solid var(--accent,#353c49);outline-offset:2px}@media(max-width:650px){.ds-row-actions{gap:0}.ds-row-icon{width:28px}}.ds-row-selected{background:var(--selected,#e7e7e0)}.ds-row-title{display:flex;align-items:center;gap:7px}.ds-row-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ds-row-prefix{max-width:12ch;flex-shrink:0;padding:1px 5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:0;border-radius:3px;background:var(--selected,#e7e7e0);color:var(--text,#252522);font-size:11px;line-height:1.5;font-weight:450}.ds-row-selected .ds-row-prefix{background:var(--surface,#fffefa)}"
     },
     {
       "name": "分类目录行",
       "kind": "custom",
       "refersTo": "category-directory-row",
-      "description": "独立目录模式中的分类行，展开二级，行内改名和新建，通过更多动作管理同级顺序、合并与删除。示例展示默认行外观。",
+      "description": "分类管理从“我的分类”旁的“管理”或窄窗口的“管理分类”进入，每次打开定位分类 tab，内容标题跟随分类管理、查找重复或导入备份 tab 更新。目录行支持展开、改名、新建及更多动作。返回后焦点回到可见入口。示例展示默认行外观。",
       "html": "<ul class=\"ds-manager-list\"><li class=\"ds-manager-item\"><div class=\"ds-manager-row\"><button class=\"ds-manager-icon ds-manager-expand\" type=\"button\" aria-label=\"展开阅读\" aria-expanded=\"false\"><svg fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"m6 4 4 4-4 4\"/></svg></button><span class=\"ds-manager-folder\"><svg fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M1.5 4h5l1.5 2h6.5v7h-13V4Z\"/></svg></span><span class=\"ds-manager-name\">阅读</span><span class=\"ds-manager-count\">6</span><button class=\"ds-manager-icon\" type=\"button\" aria-label=\"添加二级分类\"><svg fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M8 3v10M3 8h10\"/></svg></button><button class=\"ds-manager-icon\" type=\"button\" aria-label=\"改名阅读\"><svg fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M11.5 3.5 14.5 6.5M3 13l1-4L12 1l3 3-8 8-4 1Z\"/></svg></button><button class=\"ds-manager-icon\" type=\"button\" aria-label=\"更多阅读操作\"><svg fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M3 7v2M8 7v2M13 7v2\"/></svg></button></div></li></ul>",
       "css": ".ds-manager-list{list-style:none;padding:0;margin:0;color:var(--text,#252522);font-family:\"DM Sans\",\"PingFang SC\",\"Microsoft YaHei\",sans-serif;}.ds-manager-item{border-bottom:1px solid var(--soft-line,#eae9e2)}.ds-manager-row{display:flex;align-items:center;gap:8px;min-height:54px;padding:7px 5px}.ds-manager-row:hover,.ds-manager-row:focus-within{background:var(--panel,#f8f7f3)}.ds-manager-name{flex:1;min-width:0;font-size:14px;font-weight:550;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ds-manager-count{font-size:12px;font-variant-numeric:tabular-nums;color:var(--muted,#686760);margin:0 10px}.ds-manager-icon{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;width:30px;height:30px;padding:5px;border:0;border-radius:4px;background:transparent;color:var(--muted,#686760);cursor:pointer}.ds-manager-icon:hover{color:var(--text,#252522);background:var(--hover,#f0efe9)}.ds-manager-icon:focus-visible{outline:2px solid var(--accent,#353c49);outline-offset:2px}.ds-manager-row svg{width:17px;height:17px}.ds-manager-folder{display:inline-flex;color:var(--muted,#686760)}.ds-manager-expand[aria-expanded=\"true\"] svg{transform:rotate(90deg)}@media(max-width:650px){.ds-manager-row{gap:4px}.ds-manager-count{margin:0 2px}.ds-manager-icon{width:28px}.ds-manager-name{font-size:13px}}"
     },
     {
-      "name": "书签接入视图",
+      "name": "如何使用视图",
       "kind": "custom",
       "refersTo": "bookmark-connection-view",
-      "description": "使用我的书签进入独立内容视图，优先展示已有扩展的使用方法，首次安装步骤默认折叠。示例复现布局与 details 开关。",
-      "html": "<section class=\"ds-connection\" aria-label=\"书签接入说明\"><h2>使用我的 Chrome 书签</h2><p class=\"ds-connection-intro\">当前是公开示例预览。</p><section class=\"ds-connection-existing\"><h3>已经安装过</h3><p>从 Chrome 扩展菜单打开书签快捷整理。</p><button class=\"ds-connection-button\" type=\"button\">复制扩展管理页地址</button></section><details class=\"ds-connection-install\"><summary>首次安装扩展</summary><p>解压扩展包，在 Chrome 扩展管理页加载 extension 文件夹。</p></details></section>",
-      "css": ".ds-connection{padding:26px 28px;color:var(--text,#252522);font-family:\"DM Sans\",\"PingFang SC\",\"Microsoft YaHei\",sans-serif;}.ds-connection h2{margin:0;font-size:25px;line-height:1.4;font-weight:620;letter-spacing:-.025em}.ds-connection-intro{max-width:60ch;font-size:14px;line-height:1.8;color:var(--muted,#686760);margin:20px 0 30px}.ds-connection-existing{padding-bottom:24px;border-bottom:1px solid var(--line,#ddddd5)}.ds-connection-existing h3{font-size:15px;margin:0 0 10px}.ds-connection-existing p,.ds-connection-install p{font-size:13px;line-height:1.8;max-width:65ch}.ds-connection-button{min-height:32px;padding:6px 11px;border:1px solid var(--line,#ddddd5);border-radius:5px;background:var(--surface,#fffefa);color:var(--text,#252522);font-size:12px;line-height:18px;cursor:pointer;transition:background-color 120ms ease-out;font-family:\"DM Sans\",\"PingFang SC\",\"Microsoft YaHei\",sans-serif;}.ds-connection-button:hover{background:var(--hover,#f0efe9)}.ds-connection-button:focus-visible{outline:2px solid var(--accent,#353c49);outline-offset:2px}.ds-connection-install{padding:24px 0;border-bottom:1px solid var(--line,#ddddd5)}.ds-connection-install summary{font-size:15px;font-weight:550;cursor:pointer}.ds-connection-install summary:focus-visible{outline:2px solid var(--accent,#353c49);outline-offset:2px}@media(min-width:1600px){.ds-connection{padding-left:36px;padding-right:36px}}@media(max-width:1150px){.ds-connection{padding-left:20px;padding-right:20px}}@media(max-width:650px){.ds-connection{padding-top:20px}.ds-connection h2{font-size:22px}.ds-connection-intro{font-size:13px}}@media(prefers-reduced-motion:reduce){.ds-connection-button{transition:none}}"
+      "description": "示例和扩展模式均可进入，返回书签恢复列表。示例简介与默认折叠的安装区仅在示例模式展示，常见任务使用 dl。示例复现示例模式布局与 details 开关。",
+      "html": "<section class=\"ds-connection\" aria-label=\"如何使用\"><div class=\"ds-connection-heading\"><h2>如何使用</h2><button class=\"ds-connection-button\" type=\"button\">返回书签</button></div><p class=\"ds-connection-intro\">当前展示公开示例，可直接练习整理，操作保存在本机。</p><section class=\"ds-connection-existing\"><h3>打开自己的 Chrome 书签</h3><p>点击 Chrome 工具栏的扩展图标，再点击“书签整理”。扩展会自动显示当前 Chrome 个人资料的书签。</p><button class=\"ds-connection-button\" type=\"button\">复制扩展管理页地址</button></section><details class=\"ds-connection-install\"><summary>首次安装扩展</summary><p>解压扩展包，在 Chrome 扩展管理页加载 extension 文件夹。</p></details><section class=\"ds-usage\"><h3>整理书签</h3><dl><div><dt>查找</dt><dd>选择分类，或按名称、网址搜索。</dd></div><div><dt>编辑</dt><dd>点击书签右侧的铅笔，在原行修改名称、前缀和网址。</dd></div><div><dt>移动</dt><dd>拖到右侧分类，或勾选多条后批量移动。</dd></div><div><dt>管理</dt><dd>在“分类管理”中管理目录、查找重复或导入备份。页头可撤销、查看操作记录、刷新及导出。</dd></div></dl></section></section>",
+      "css": ".ds-connection{padding:26px 28px;color:var(--text,#252522);font-family:\"DM Sans\",\"PingFang SC\",\"Microsoft YaHei\",sans-serif;}.ds-connection h2{margin:0;font-size:25px;line-height:1.4;font-weight:620;letter-spacing:-.025em}.ds-connection-intro{max-width:60ch;font-size:14px;line-height:1.8;color:var(--muted,#686760);margin:20px 0 30px}.ds-connection-existing{padding-bottom:24px;border-bottom:1px solid var(--line,#ddddd5)}.ds-connection-existing h3{font-size:15px;margin:0 0 10px}.ds-connection-existing p,.ds-connection-install p{font-size:13px;line-height:1.8;max-width:65ch}.ds-connection-button{min-height:32px;padding:6px 11px;border:1px solid var(--line,#ddddd5);border-radius:5px;background:var(--surface,#fffefa);color:var(--text,#252522);font-size:12px;line-height:18px;cursor:pointer;transition:background-color 120ms ease-out;font-family:\"DM Sans\",\"PingFang SC\",\"Microsoft YaHei\",sans-serif;}.ds-connection-button:hover{background:var(--hover,#f0efe9)}.ds-connection-button:focus-visible{outline:2px solid var(--accent,#353c49);outline-offset:2px}.ds-connection-install{padding:24px 0;border-bottom:1px solid var(--line,#ddddd5)}.ds-connection-install summary{font-size:15px;font-weight:550;cursor:pointer}.ds-connection-install summary:focus-visible{outline:2px solid var(--accent,#353c49);outline-offset:2px}@media(min-width:1600px){.ds-connection{padding-left:36px;padding-right:36px}}@media(max-width:1150px){.ds-connection{padding-left:20px;padding-right:20px}}@media(max-width:650px){.ds-connection{padding-top:20px}.ds-connection h2{font-size:22px}.ds-connection-intro{font-size:13px}}@media(prefers-reduced-motion:reduce){.ds-connection-button{transition:none}}.ds-connection-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:900px}.ds-usage{padding-top:24px;max-width:65ch}.ds-usage h3{font-size:15px;margin:0 0 18px}.ds-usage dl{margin:0}.ds-usage dl>div{display:grid;grid-template-columns:42px 1fr;gap:16px;margin-bottom:18px;font-size:13px;line-height:1.8}.ds-usage dt{font-weight:550}.ds-usage dd{margin:0;color:var(--muted,#686760)}"
+    },
+    {
+      "name": "操作记录",
+      "kind": "custom",
+      "refersTo": "operation-record",
+      "description": "独立内容视图中的原生 details 记录，摘要展示动作、对象、时间与撤销状态。明细按 50 项递增，最近 200 条记录包含最近 30 次可撤销操作。整条记录撤销，较早独立操作可撤销，相关后续操作需先撤销较新记录。",
+      "html": "<section class=\"ds-activity\" aria-label=\"操作记录\"><details class=\"ds-activity-record\"><summary><span class=\"ds-activity-chevron\"><svg viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"m6 4 4 4-4 4\"/></svg></span><span class=\"ds-activity-copy\"><span class=\"ds-activity-name\"><span>修改书签</span><span class=\"ds-activity-subject\">示例资料</span></span><time class=\"ds-activity-time\" datetime=\"2026-11-12T10:00:00+08:00\">11/12 10:00:00</time></span><span class=\"ds-activity-status\">可撤销</span></summary><div class=\"ds-activity-body\"><div class=\"ds-activity-actions\"><button class=\"ds-activity-undo\" type=\"button\">撤销这次操作</button></div><ul class=\"ds-activity-details\"><li><h3>示例资料</h3><p class=\"ds-activity-change\"><span>更改前</span><span>示例资料</span></p><p class=\"ds-activity-change\"><span>更改后</span><span>阅读资料</span></p><p class=\"ds-activity-url\">https://example.com</p></li></ul></div></details></section>",
+      "css": ".ds-activity{max-width:900px;color:var(--text,#252522);font-family:\"DM Sans\",\"PingFang SC\",\"Microsoft YaHei\",sans-serif}.ds-activity-record{border-top:1px solid var(--line,#ddddd5);border-bottom:1px solid var(--line,#ddddd5)}.ds-activity-record>summary{display:flex;align-items:center;gap:12px;padding:16px 4px;list-style:none;cursor:pointer}.ds-activity-record>summary::-webkit-details-marker{display:none}.ds-activity-record>summary:hover{background:var(--panel,#f8f7f3)}.ds-activity-record>summary:focus-visible{outline:2px solid var(--accent,#353c49);outline-offset:-2px}.ds-activity-chevron{display:flex;color:var(--muted,#686760)}.ds-activity-chevron svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}.ds-activity-record[open] .ds-activity-chevron{transform:rotate(90deg)}.ds-activity-copy{display:flex;flex-direction:column;gap:6px;flex:1;min-width:0}.ds-activity-name{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 12px;font-size:14px;font-weight:550;overflow-wrap:anywhere}.ds-activity-subject{color:var(--muted,#686760);font-size:12px;font-weight:400}.ds-activity-time,.ds-activity-status{color:var(--muted,#686760);font-size:11px;line-height:1.5}.ds-activity-status{flex-shrink:0}.ds-activity-body{padding:0 4px 20px 33px}.ds-activity-actions{display:flex;align-items:center;flex-wrap:wrap;gap:10px 16px;margin:0 0 14px}.ds-activity-undo{min-height:32px;padding:6px 11px;border:1px solid var(--line,#ddddd5);border-radius:5px;background:var(--surface,#fffefa);color:var(--text,#252522);font:12px/18px \"DM Sans\",\"PingFang SC\",\"Microsoft YaHei\",sans-serif;cursor:pointer;transition:background-color 120ms ease-out}.ds-activity-undo:hover:not(:disabled){background:var(--hover,#f0efe9)}.ds-activity-undo:focus-visible{outline:2px solid var(--accent,#353c49);outline-offset:2px}.ds-activity-undo:disabled{opacity:.45;cursor:default}.ds-activity-details{list-style:none;margin:0;padding:0}.ds-activity-details li{padding:12px 0;border-top:1px solid var(--soft-line,#eae9e2)}.ds-activity-details h3{margin:0 0 8px;font-size:13px;font-weight:550;overflow-wrap:anywhere}.ds-activity-change{display:grid;grid-template-columns:44px minmax(0,1fr);gap:10px;margin:4px 0;font-size:12px;line-height:1.8;overflow-wrap:anywhere}.ds-activity-change>span:first-child{color:var(--muted,#686760)}.ds-activity-url{margin:6px 0;color:var(--muted,#686760);font-size:12px;line-height:1.7;overflow-wrap:anywhere}@media(max-width:650px){.ds-activity-record>summary{gap:8px}.ds-activity-body{padding-left:25px}.ds-activity-name{font-size:13px}}@media(prefers-reduced-motion:reduce){.ds-activity-undo{transition:none}}"
+    },
+    {
+      "name": "导入进度",
+      "kind": "custom",
+      "description": "实际完成步骤驱动原生进度条，书签数量与跳过数量分别展示。取消保留已完成内容，再次确认跳过相同网址并继续剩余内容，扩展每步保存撤销快照。示例展示导入进行状态。",
+      "html": "<section class=\"ds-import-progress\" aria-label=\"导入进度\"><div class=\"ds-import-heading\"><p role=\"status\" aria-live=\"polite\">已导入 34 / 500 条，跳过 0 条相同网址。</p><button class=\"ds-import-cancel\" type=\"button\">取消导入</button></div><progress class=\"ds-import-bar\" max=\"501\" value=\"35\" aria-label=\"导入进度\"></progress><p class=\"ds-import-outcome\" role=\"status\"></p></section>",
+      "css": ".ds-import-progress{max-width:700px;margin-top:24px;padding-top:20px;border-top:1px solid var(--line,#ddddd5);color:var(--text,#252522);font-family:\"DM Sans\",\"PingFang SC\",\"Microsoft YaHei\",sans-serif}.ds-import-heading{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}.ds-import-heading p{margin:0;font-size:13px;line-height:1.8}.ds-import-cancel{min-height:32px;padding:6px 11px;border:1px solid var(--line,#ddddd5);border-radius:5px;background:var(--surface,#fffefa);color:var(--text,#252522);font:12px/18px \"DM Sans\",\"PingFang SC\",\"Microsoft YaHei\",sans-serif;cursor:pointer;transition:background-color 120ms ease-out}.ds-import-cancel:hover:not(:disabled){background:var(--hover,#f0efe9)}.ds-import-cancel:focus-visible{outline:2px solid var(--accent,#353c49);outline-offset:2px}.ds-import-cancel:disabled{opacity:.45;cursor:default}.ds-import-bar{display:block;width:100%;height:5px;margin-top:14px;border:0;background:var(--line,#ddddd5);accent-color:var(--accent,#353c49);border-radius:2px}.ds-import-bar::-webkit-progress-bar{background:var(--line,#ddddd5);border-radius:2px}.ds-import-bar::-webkit-progress-value{background:var(--accent,#353c49);border-radius:2px}.ds-import-bar::-moz-progress-bar{background:var(--accent,#353c49);border-radius:2px}.ds-import-outcome{margin-bottom:0;color:var(--muted,#686760);font-size:12px;line-height:1.7}@media(prefers-reduced-motion:reduce){.ds-import-cancel{transition:none}}"
+    },
+    {
+      "name": "列表增量显示",
+      "kind": "custom",
+      "description": "每段最多 200 条，列表尾部的安静按钮增加下一段。展开保持滚动位置并聚焦首条新增书签的复选框，结果计数、搜索与全选作用于完整筛选结果。示例展示增量显示入口。",
+      "html": "<button class=\"ds-list-more\" type=\"button\">再显示 200 项</button>",
+      "css": ".ds-list-more{display:block;margin:20px auto;min-height:32px;padding:6px 11px;border:1px solid var(--line,#ddddd5);border-radius:5px;background:var(--surface,#fffefa);color:var(--text,#252522);font:12px/18px \"DM Sans\",\"PingFang SC\",\"Microsoft YaHei\",sans-serif;cursor:pointer;transition:background-color 120ms ease-out}.ds-list-more:hover:not(:disabled){background:var(--hover,#f0efe9)}.ds-list-more:focus-visible{outline:2px solid var(--accent,#353c49);outline-offset:2px}.ds-list-more:disabled{opacity:.45;cursor:default}@media(prefers-reduced-motion:reduce){.ds-list-more{transition:none}}"
     }
   ],
   "narrative": {
     "northStar": "桌面收藏工作台",
-    "overview": "暖白内容区、石墨文字和细分隔线构成主界面。日常浏览时，来源分类、书签列表与移动目标分别占据独立窗格，列表保留名称、前缀、路径、域名和行内动作。分类整理与接入说明各自占用内容视图，切换时收起书签列表和右侧移动目标。\n\n外观设置提供浅色、深色及跟随系统，四种强调色与两种列表密度。背景图片显示在窗格外围，内容表面保持可读。记录依据当前源码，范围为视觉与交互规则，真实 Chrome 安装仍待验证。",
+    "overview": "暖白内容区、石墨文字和细分隔线构成主界面。日常浏览时，来源分类、书签列表与移动目标分别占据独立窗格，列表保留名称、前缀、路径、域名和行内动作。分类管理、操作记录、版本记录与使用说明各自占用内容视图，切换时收起书签列表和右侧移动目标。\n\n外观设置提供浅色、深色及跟随系统，四种强调色、两种列表密度与界面语言选择，并展示本机存储用量。背景图片显示在窗格外围，内容表面保持可读。当前基线为（1.0.0）准备发布，记录依据当前源码，范围为视觉与交互规则。2026 年 11 月 13 日已在独立 Chrome 验收配置中完成安装、重载、跨窗口同步及导入撤销验证。",
     "keyCharacteristics": [
       "连续列表与细分隔线。",
       "名称和网址在行内编辑。",
       "分类以可展开的两层目录操作，改名、新建与合并目标跟随所在行。",
-      "页头持续显示当前数据来源，接入说明使用独立内容视图。",
+      "页头持续显示当前数据来源，操作记录、版本记录与使用说明使用独立内容视图。",
       "色彩通过主题变量集中切换。",
       "窄窗口通过收起窗格保留操作入口。"
     ],
     "rules": [
+      {
+        "name": "The Multilingual Layout Rule",
+        "body": "页头动作允许按译文长度换行，浮层和移动目标窗格随页头实际高度定位，阿拉伯语布局镜像并保留网址的从左到右阅读方向。",
+        "section": "layout"
+      },
       {
         "name": "The Inline Editing Rule",
         "body": "书签名称和网址的编辑器在原列表行展开，保存与取消动作跟随字段。",
         "section": "components"
       },
       {
-        "name": "The Visible Focus Rule",
-        "body": "可交互控件保留强调色焦点提示，搜索输入通过外层边框显示焦点。",
+        "name": "The Full Result Scope Rule",
+        "body": "列表按（200）条递增显示，结果数量、搜索与全选始终作用于当前筛选的完整结果。",
         "section": "components"
       },
       {
@@ -734,6 +761,16 @@
       {
         "name": "The Deletion Scope Rule",
         "body": "删除确认分别展示书签与文件夹数量，列明所选目录及其下级目录，零书签范围使用空文件夹文案。",
+        "section": "components"
+      },
+      {
+        "name": "The Visible Focus Rule",
+        "body": "可交互控件保留强调色焦点提示，搜索输入通过外层边框显示焦点。",
+        "section": "components"
+      },
+      {
+        "name": "The Import Progress Rule",
+        "body": "导入反馈来自实际完成的步骤与书签数量，取消后保留已完成内容，再次确认时按当前数据跳过相同网址并合入剩余内容。",
         "section": "components"
       }
     ],

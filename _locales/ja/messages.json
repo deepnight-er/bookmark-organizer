@@ -1,0 +1,11 @@
+{
+  "appName": {
+    "message": "ブックマーク整理"
+  },
+  "appDescription": {
+    "message": "名前やURLをその場で編集し、ページタイトル取得・接頭辞設定・ドラッグ整理・取り消しができます。"
+  },
+  "openTitle": {
+    "message": "ブックマーク整理を開く"
+  }
+}

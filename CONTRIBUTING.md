@@ -19,4 +19,6 @@ npm run check:release
 
 修改集中在对应功能，沿用现有目录规则、两层分类和视觉样式。提交 Pull Request 时说明变更行为、验证结果与尚未验证的环境。新增网络访问应同步权限声明和 PRIVACY.md。
 
-版本号由维护者通过 `npm run version -- patch` 等命令统一递增，更新记录写入 CHANGELOG.md。
+首次公开前持续完善 1.0.0。后续版本由维护者通过 `npm run version -- patch` 等命令统一递增。
+
+更新说明维护在 `releases.js`，待发布功能放入 `upcoming`。公开发布时写入真实版本、日期和功能条目，并同步发布状态。运行 `npm run releases` 生成 CHANGELOG.md 及扩展版本显示名称。GitHub 草稿 Release 同样从 `releases.js` 提取当前版本说明。

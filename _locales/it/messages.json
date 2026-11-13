@@ -1,0 +1,11 @@
+{
+  "appName": {
+    "message": "Gestione segnalibri"
+  },
+  "appDescription": {
+    "message": "Modifica nomi e URL nella riga, leggi titoli, imposta prefissi, trascina per organizzare e annulla modifiche."
+  },
+  "openTitle": {
+    "message": "Apri Gestione segnalibri"
+  }
+}

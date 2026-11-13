@@ -1,5 +1,6 @@
 (function () {
   'use strict';
+  const t = (typeof window !== 'undefined' && window.BookmarkI18n?.t) || ((message, ...values) => message.replace(/\{(\d+)\}/g, (_, index) => String(values[index])));
 
   const Core = window.BookmarkCore;
   const seed = window.BOOKMARK_SEED;
@@ -11,6 +12,7 @@
   const selected = new Set();
   let tree = [];
   let rows = [];
+  let listLimit = 200;
   let categories = [];
   let categoryOrder = live ? [] : seed.categoryOrder;
   let source = 'all';
@@ -30,8 +32,11 @@
   let prefixEditing = false;
   let deletion = null;
   let importData = null;
+  let importJob = null;
+  let importReadRevision = 0;
   let mergeRequest = null;
   let duplicatePreview = [];
+  let managerQuery = '';
   let managerEdit = null;
   let managerMenu = null;
   let managerMerge = null;
@@ -44,11 +49,14 @@
     const node = document.createElement(tag);
     if (className) node.className = className;
     if (text !== undefined) node.textContent = text;
+    if (['title-name', 'nav-title', 'bookmark-path', 'manager-name', 'target-path'].includes(className)) node.dir = 'auto';
     return node;
   }
 
   function icon(button, name) {
-    const paths = { pencil: 'M11.5 3.5 14.5 6.5M3 13l1-4L12 1l3 3-8 8-4 1Z', check: 'm3 8 3 3 7-7', close: 'm4 4 8 8M12 4l-8 8', trash: 'M2 4h12M6 4V2h4v2M4 4l1 10h6l1-10M7 7v4M9 7v4', folder: 'M1.5 4h5l1.5 2h6.5v7h-13V4Z', library: 'M3 2v12M7 2v12M11 2l3 11.5', arrow: 'M4 12 12 4M4 4h8v8', plus: 'M8 3v10M3 8h10', more: 'M3 7v2M8 7v2M13 7v2', chevron: 'm6 4 4 4-4 4', grip: 'M5 3h1M10 3h1M5 8h1M10 8h1M5 13h1M10 13h1' };
+    const paths = { refresh: 'M13.5 6A5.5 5.5 0 1 0 12.7 12M13.5 2.5V6H10',
+      undo: 'M2.5 6a5.5 5.5 0 1 1 .8 6M2.5 2.5V6H6',
+      pencil: 'M11.5 3.5 14.5 6.5M3 13l1-4L12 1l3 3-8 8-4 1Z', check: 'm3 8 3 3 7-7', close: 'm4 4 8 8M12 4l-8 8', trash: 'M2 4h12M6 4V2h4v2M4 4l1 10h6l1-10M7 7v4M9 7v4', folder: 'M1.5 4h5l1.5 2h6.5v7h-13V4Z', library: 'M3 2v12M7 2v12M11 2l3 11.5', arrow: 'M4 12 12 4M4 4h8v8', plus: 'M8 3v10M3 8h10', more: 'M3 7v2M8 7v2M13 7v2', chevron: 'm6 4 4 4-4 4', grip: 'M5 3h1M10 3h1M5 8h1M10 8h1M5 13h1M10 13h1' };
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('viewBox', '0 0 16 16');
     svg.setAttribute('aria-hidden', 'true');
@@ -62,6 +70,129 @@
   function targetLabel(value) {
     return [value.category, value.section].filter(Boolean).join(' / ');
   }
+
+  function renderActivity() {
+    if ($('activity-panel').hidden) return;
+    const list = $('activity-list');
+    const opened = new Set([...list.querySelectorAll('details[open]')].map(node => node.dataset.operation));
+    const records = new Map();
+    const undone = new Map();
+    for (const entry of adapter.changes) {
+      if (entry.type === 'undo') undone.set(Core.operationKey(entry.entry), entry);
+      else records.set(Core.operationKey(entry), entry);
+    }
+    for (const entry of adapter.history) records.set(Core.operationKey(entry), entry);
+    const active = new Set(adapter.history.map(Core.operationKey));
+    const archived = [...records.values()].filter(entry => !active.has(Core.operationKey(entry))).sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, 200 - adapter.history.length);
+    const entries = [...adapter.history, ...archived].sort((a, b) => String(b.at).localeCompare(String(a.at)));
+    const fragment = document.createDocumentFragment();
+    if (!entries.length) {
+      const empty = element('div', 'list-message');
+      empty.append(element('h3', '', t("还没有操作记录")), element('p', '', t("移动、编辑或删除后，记录会出现在这里。")));
+      fragment.append(empty);
+    }
+    for (const entry of entries) {
+      const key = Core.operationKey(entry);
+      const available = Core.undoAvailability(adapter.history, key);
+      const reversal = undone.get(key);
+      const record = element('details', 'activity-record');
+      record.dataset.operation = key;
+      record.open = opened.has(key);
+      const summary = element('summary');
+      summary.append(icon(element('span', 'activity-chevron'), 'chevron'));
+      const copy = element('span', 'activity-copy');
+      const name = element('span', 'activity-name');
+      name.append(element('span', '', Core.operationTitle(entry)));
+      const subject = entry.before?.title || entry.edits?.[0]?.before.title || entry.folders?.[0]?.before.title || entry.moves?.[0]?.title || entry.created?.[0]?.title || entry.removed?.[0]?.title;
+      if (subject) name.append(element('span', 'activity-subject', subject));
+      copy.append(name);
+      const time = element('time', 'activity-time');
+      const date = new Date(entry.at);
+      time.textContent = Number.isNaN(date.getTime()) ? t("较早记录") : date.toLocaleString(window.BookmarkI18n.locale, { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+      if (!Number.isNaN(date.getTime())) time.dateTime = entry.at;
+      copy.append(time);
+      const status = available.index >= 0 ? available.reason ? t("需按顺序撤销") : t("可撤销") : reversal ? reversal.skipped ? t("部分恢复") : t("已撤销") : t("仅供查看");
+      summary.append(copy, element('span', 'activity-status', status));
+      const body = element('div', 'activity-body');
+      function populate() {
+        if (!record.open || body.childElementCount) return;
+        if (available.index >= 0) {
+          const actions = element('div', 'activity-actions');
+          const button = element('button', 'quiet-button', t("撤销这次操作"));
+          button.type = 'button';
+          button.dataset.undoOperation = key;
+          button.disabled = busy || Boolean(available.reason);
+          actions.append(button);
+          if (available.reason) actions.append(element('p', 'activity-reason', available.reason));
+          body.append(actions);
+        }
+        if (reversal) {
+          const result = reversal.skipped ? t("已恢复 {0} 项，{1} 项因后续变化跳过。", reversal.count || 0, reversal.skipped) : t("这次操作已撤销。");
+          body.append(element('p', 'activity-reason', result));
+        }
+        const details = Core.operationDetails(entry, tree);
+        const items = element('ul', 'activity-details');
+        let shown = 0;
+        const more = element('button', 'text-button');
+        more.type = 'button';
+        function appendDetails() {
+          const end = Math.min(shown + 50, details.length);
+          for (const detail of details.slice(shown, end)) {
+            const item = element('li');
+            item.append(element('h3', '', detail.title));
+            for (const [label, value] of [[t("更改前"), detail.before], [t("更改后"), detail.after]]) {
+              if (!value) continue;
+              const line = element('p', 'activity-change');
+              line.append(element('span', 'activity-field', label), element('span', '', value));
+              item.append(line);
+            }
+            if (detail.beforeUrl || detail.afterUrl) {
+              const changed = detail.beforeUrl && detail.afterUrl && detail.beforeUrl !== detail.afterUrl;
+              if (changed) item.append(element('p', 'activity-url', t("原网址 ") + detail.beforeUrl));
+              item.append(element('p', 'activity-url', (changed ? t("新网址 ") : '') + (detail.afterUrl || detail.beforeUrl)));
+            }
+            if (detail.position) item.append(element('p', 'activity-reason', detail.position));
+            items.append(item);
+          }
+          shown = end;
+          more.hidden = shown >= details.length;
+          more.textContent = t("再显示 {0} 项", Math.min(50, details.length - shown));
+        }
+        more.addEventListener('click', appendDetails);
+        appendDetails();
+        if (!details.length) items.append(element('li', 'activity-reason', t("这条旧记录没有保存详细内容。")));
+        body.append(items, more);
+      }
+      record.addEventListener('toggle', populate);
+      record.append(summary, body);
+      if (record.open) populate();
+      fragment.append(record);
+    }
+    list.replaceChildren(fragment);
+  }
+
+  function closeActivity() {
+    closeReleases();
+    $('activity-panel').hidden = true;
+    $('activity-toggle').setAttribute('aria-expanded', 'false');
+    document.querySelector('.bookmark-pane').classList.remove('logging');
+    document.querySelector('.bookmark-pane').setAttribute('aria-labelledby', 'source-title');
+  }
+
+  $('activity-toggle').addEventListener('click', () => {
+    closeTools(); closeHelp();
+    $('activity-panel').hidden = false;
+    $('activity-toggle').setAttribute('aria-expanded', 'true');
+    document.querySelector('.bookmark-pane').classList.add('logging');
+    document.querySelector('.bookmark-pane').setAttribute('aria-labelledby', 'activity-title');
+    renderActivity();
+    $('activity-close').focus();
+  });
+  $('activity-close').addEventListener('click', () => { closeActivity(); $('activity-toggle').focus(); });
+  $('activity-list').addEventListener('click', event => {
+    const button = event.target.closest('[data-undo-operation]');
+    if (button) undo(button.dataset.undoOperation);
+  });
 
   function showNotice(message) {
     $('notice').textContent = message || '';
@@ -87,9 +218,9 @@
 
   function renderNavigation() {
     const nav = document.createDocumentFragment();
-    const options = [['all', '全部书签', rows.length], ...categories.map(category => [category.title, category.title, category.count])];
+    const options = [['all', t("全部书签"), rows.length], ...categories.map(category => [category.title, category.title, category.count])];
     const unfiled = rows.filter(row => !row.category).length;
-    if (unfiled) options.push(['unfiled', '未归类', unfiled]);
+    if (unfiled) options.push(['unfiled', t("未归类"), unfiled]);
     for (const [value, title, count] of options) {
       if (value === 'unfiled') nav.append(element('div', 'source-divider'));
       const button = element('button', 'source-button' + (source === value ? ' active' : ''));
@@ -109,32 +240,33 @@
   }
 
   function renderList(resetScroll = false) {
+    if (resetScroll) listLimit = 200;
     const editor = $('inline-editor');
     const focused = editor?.contains(document.activeElement) ? document.activeElement : null;
     const caret = focused && typeof focused.selectionStart === 'number' ? [focused.selectionStart, focused.selectionEnd] : null;
     const visible = filteredRows();
     const fragment = document.createDocumentFragment();
-    $('source-title').textContent = source === 'all' ? '全部书签' : source === 'unfiled' ? '未归类' : source;
-    const scope = sourceSection === null ? '' : `${sourceSection || '直属书签'} · `;
-    $('result-count').textContent = scope + (query ? `找到 ${visible.length} 条结果` : `${visible.length} 条书签`);
+    $('source-title').textContent = source === 'all' ? t("全部书签") : source === 'unfiled' ? t("未归类") : source;
+    const scope = sourceSection === null ? '' : `${sourceSection || t("直属书签")} · `;
+    $('result-count').textContent = scope + (query ? t("找到 {0} 条结果", visible.length) : t("{0} 条书签", visible.length));
     if (!visible.length) {
       const empty = element('div', 'list-message');
       let summary = null;
       if (!query && sourceSection !== '' && categories.some(category => category.title === source)) summary = Core.folderSummary(tree, { category: source, section: sourceSection || '' });
       const childFolders = summary ? summary.folders - summary.variants : 0;
-      empty.append(element('h3', '', query ? '没有找到匹配书签' : childFolders ? '这个分类包含空文件夹' : '这个分类暂时没有书签'));
-      const message = query ? '试试更短的名称、域名或分类。' : childFolders ? '当前范围 0 条书签，包含 ' + childFolders + ' 个空子文件夹。' : '从其他分类选中书签，移动到这里。';
+      empty.append(element('h3', '', query ? t("没有找到匹配书签") : childFolders ? t("这个分类包含空文件夹") : t("这个分类暂时没有书签")));
+      const message = query ? t("试试更短的名称、域名或分类。") : childFolders ? t("当前范围 0 条书签，包含 ") + childFolders + t(" 个空子文件夹。") : t("从其他分类选中书签，移动到这里。");
       empty.append(element('p', '', message));
       if (childFolders) {
         empty.append(element('p', 'empty-folder-names', summary.childNames.join('、')));
-        const manage = element('button', 'quiet-button', '管理文件夹');
+        const manage = element('button', 'quiet-button', t("管理文件夹"));
         manage.type = 'button';
         manage.addEventListener('click', () => { expandedCategories.add(source); $('tools-toggle').click(); showTool('categories'); });
         empty.append(manage);
       }
       fragment.append(empty);
     }
-    for (const row of visible) {
+    for (const row of visible.slice(0, listLimit)) {
       const item = element('article', 'bookmark-row' + (selected.has(row.id) ? ' selected' : '') + (editing?.id === row.id ? ' editing' : ''));
       item.dataset.id = row.id;
       item.draggable = false;
@@ -147,7 +279,7 @@
       checkbox.checked = selected.has(row.id);
       checkbox.disabled = busy;
       checkbox.dataset.bookmark = row.id;
-      checkbox.setAttribute('aria-label', '选择 ' + row.title);
+      checkbox.setAttribute('aria-label', t("选择 ") + row.title);
       const copy = element('div', 'bookmark-copy');
       const title = element('h3', 'bookmark-title');
       const parts = Core.titleParts(row.title);
@@ -156,36 +288,45 @@
       copy.append(title);
       const meta = element('div', 'bookmark-meta');
       meta.append(element('span', 'bookmark-path', row.path), element('span', 'bookmark-host', row.host));
-      if (row.syncing) meta.append(element('span', 'storage-tag', '账号'));
+      if (row.syncing) meta.append(element('span', 'storage-tag', t("账号")));
       copy.append(meta);
       item.append(handle, checkbox, copy);
-      const edit = element('button', 'text-button edit-bookmark', '编辑');
+      const actions = element('div', 'bookmark-actions');
+      const edit = icon(element('button', 'icon-button edit-bookmark'), 'pencil');
       edit.type = 'button';
       edit.dataset.edit = row.id;
       edit.disabled = busy;
-      edit.setAttribute('aria-label', '编辑 ' + row.title);
-      item.append(edit);
+      edit.setAttribute('aria-label', t("编辑 ") + row.title);
+      edit.title = t("编辑书签");
       const remove = icon(element('button', 'icon-button danger-icon delete-bookmark'), 'trash');
       remove.type = 'button';
       remove.dataset.delete = row.id;
       remove.disabled = busy;
-      remove.setAttribute('aria-label', '删除 ' + row.title);
-      remove.title = '删除书签';
-      item.append(remove);
+      remove.setAttribute('aria-label', t("删除 ") + row.title);
+      remove.title = t("删除书签");
       try {
         if (['http:', 'https:', 'file:'].includes(new URL(row.url).protocol)) {
-          const link = icon(element('a', 'open-link'), 'arrow');
-          link.title = '打开网页';
+          const link = icon(element('a', 'icon-button open-link'), 'arrow');
+          link.title = t("打开网页");
           link.href = row.url;
           link.target = '_blank';
           link.rel = 'noopener noreferrer';
           link.draggable = false;
-          link.setAttribute('aria-label', '打开 ' + row.title);
-          item.append(link);
+          link.setAttribute('aria-label', t("打开 ") + row.title);
+          actions.append(link);
         }
       } catch { /* A saved malformed URL still remains movable. */ }
+      actions.append(edit, remove);
+      item.append(actions);
       if (editing?.id === row.id) item.append(editor || createEditor());
       fragment.append(item);
+    }
+    if (visible.length > listLimit) {
+      const more = element('button', 'quiet-button list-more', t("再显示 {0} 项", Math.min(200, visible.length - listLimit)));
+      more.type = 'button';
+      more.dataset.listMore = 'true';
+      more.disabled = busy;
+      fragment.append(more);
     }
     const scroll = resetScroll ? 0 : $('bookmark-list').scrollTop;
     $('bookmark-list').replaceChildren(fragment);
@@ -201,15 +342,15 @@
     $('delete-category').hidden = !category?.variants.length;
     document.querySelector('.source-title-row').append(renameForm);
     $('source-filter-panel').hidden = !category?.sections.length;
-    const scopeName = sourceSection === null ? source : sourceSection || '直属书签';
-    $('search').placeholder = source === 'all' || source === 'unfiled' ? '搜索名称、网址或分类' : `在「${scopeName}」中搜索名称或网址`;
+    const scopeName = sourceSection === null ? source : sourceSection || t("直属书签");
+    $('search').placeholder = source === 'all' || source === 'unfiled' ? t("搜索名称、网址或分类") : t("在「{0}」中搜索名称或网址", scopeName);
     if (!category?.sections.length) { placeFolderRename(); return; }
     const options = [
-      { value: null, label: '全部', count: category.count },
+      { value: null, label: t("全部"), count: category.count },
       ...category.sections.map(section => ({ value: section.title, label: section.title, count: section.count }))
     ];
     const direct = rows.filter(row => row.category === source && !row.sectionRoot).length;
-    if (direct || sourceSection === '') options.push({ value: '', label: '直属书签', count: direct });
+    if (direct || sourceSection === '') options.push({ value: '', label: t("直属书签"), count: direct });
     const fragment = document.createDocumentFragment();
     for (const option of options) {
       const button = element('button', 'source-section' + (sourceSection === option.value ? ' active' : ''));
@@ -221,7 +362,7 @@
       const wrapper = element('div', 'source-section-item' + (sourceSection === option.value ? ' active' : ''));
       wrapper.append(button);
       if (sourceSection === option.value && option.value) {
-        for (const [action, name, label] of [['rename', 'pencil', '重命名二级分类'], ['delete', 'trash', '删除二级分类']]) {
+        for (const [action, name, label] of [['rename', 'pencil', t("重命名二级分类")], ['delete', 'trash', t("删除二级分类")]]) {
           const control = icon(element('button', 'icon-button' + (action === 'delete' ? ' danger-icon' : '')), name);
           control.type = 'button';
           control.dataset.sectionAction = action;
@@ -241,7 +382,7 @@
   function updateSectionExpansion() {
     $('source-sections').classList.toggle('collapsed', !sourceSectionsExpanded);
     $('toggle-source-sections').hidden = $('source-sections').scrollHeight <= 72;
-    $('toggle-source-sections').textContent = sourceSectionsExpanded ? '收起分类' : '展开全部分类';
+    $('toggle-source-sections').textContent = sourceSectionsExpanded ? t("收起分类") : t("展开全部分类");
     $('toggle-source-sections').setAttribute('aria-expanded', String(sourceSectionsExpanded));
     const active = $('source-sections').querySelector('.active');
     $('source-sections').scrollTop = sourceSectionsExpanded || !active ? 0 : Math.max(0, active.offsetTop - 38);
@@ -260,18 +401,27 @@
     $('delete-selected').hidden = !selected.size;
     $('bulk-prefix').disabled = busy;
     $('apply-prefix').disabled = busy;
-    $('select-label').textContent = selected.size ? `已选择 ${selected.size} 条` : '全选当前结果';
-    $('selection-summary').textContent = selected.size ? `已选 ${selected.size} 条，可批量拖动或点击右侧移动` : '可同时选中多条移动';
+    $('select-label').textContent = selected.size ? t("已选择 {0} 条", selected.size) : t("全选");
+    $('selection-summary').textContent = selected.size ? t("已选 {0} 条", selected.size) : t("勾选可批量操作");
     $('move-selected').disabled = busy || selected.size === 0 || !target.category;
-    $('move-selected').textContent = busy ? '正在移动…' : !target.category ? '先新建目标分类' : selected.size ? `移动 ${selected.size} 条到这里` : '先选择书签';
-    $('target-path').textContent = '目标 · ' + targetLabel(target);
+    $('move-selected').textContent = busy ? t("正在移动…") : !target.category ? t("先新建分类") : selected.size ? t("移动 {0} 条书签", selected.size) : t("勾选书签后移动");
+    $('target-path').textContent = targetLabel(target) || t("尚未选择分类");
+    $('target-path').title = targetLabel(target);
+    $('move-selected').title = target.category ? t("移入 ") + targetLabel(target) : t("请先在分类管理中新建分类");
     $('undo').disabled = busy || adapter.history.length === 0;
     $('refresh').disabled = busy;
     $('export').disabled = busy;
+    $('language-select').disabled = busy;
     $('tools-toggle').disabled = busy;
+    $('tools-toggle-mobile').disabled = busy;
+    $('activity-toggle').disabled = busy;
+    $('releases-toggle').disabled = busy;
+    $('clear-history').disabled = busy || !adapter.changes.length && !adapter.history.length;
+    renderActivity();
     $('connect').disabled = busy;
     for (const control of $('library-tools').querySelectorAll('input, select, button')) control.disabled = busy || control.dataset.unavailable === 'true';
-    $('confirm-import').disabled = busy || !importData;
+    $('confirm-import').disabled = busy || !importData || $('confirm-import').dataset.unavailable === 'true';
+    $('cancel-import').disabled = !importJob?.active || importJob.controller.signal.aborted;
     for (const id of ['rename-category', 'delete-category', 'folder-name', 'save-folder-name', 'cancel-folder-name', 'open-prefix', 'cancel-prefix', 'delete-selected']) $(id).disabled = busy;
     for (const button of document.querySelectorAll('[data-section-action]')) button.disabled = busy;
     for (const destination of document.querySelectorAll('.drop-target')) destination.disabled = busy;
@@ -284,6 +434,8 @@
       row.querySelector('.delete-bookmark').disabled = busy;
       row.draggable = false;
     }
+    const more = $('bookmark-list').querySelector('[data-list-more]');
+    if (more) more.disabled = busy;
   }
 
   function renderTargets() {
@@ -293,7 +445,7 @@
       button.type = 'button';
       button.dataset.category = category.title;
       button.dataset.section = '';
-      button.setAttribute('aria-label', '目标分类 ' + category.title);
+      button.setAttribute('aria-label', t("目标分类 ") + category.title);
       button.setAttribute('aria-pressed', String(category.title === target.category && !target.section));
       button.append(element('span', '', category.title), element('small', '', category.count));
       fragment.append(button);
@@ -305,32 +457,30 @@
   function renderFolders() {
     const category = categories.find(category => category.title === target.category);
     const sections = category?.sections || [];
-    $('folder-title').textContent = target.category + ' · 二级文件夹';
-    $('folder-count').textContent = sections.length;
+    $('folder-title').textContent = t("子分类");
+    $('folder-count').textContent = sections.length ? sections.length + t(" 个") : '';
     const fragment = document.createDocumentFragment();
     for (const section of sections) {
       const button = element('button', 'folder-target drop-target' + (section.title === target.section ? ' active' : ''));
       button.type = 'button';
       button.dataset.category = target.category;
       button.dataset.section = section.title;
-      button.setAttribute('aria-label', '目标文件夹 ' + section.title);
+      button.setAttribute('aria-label', t("目标文件夹 ") + section.title);
       button.setAttribute('aria-pressed', String(section.title === target.section));
       button.append(element('span', '', section.title), element('small', '', section.count));
       fragment.append(button);
     }
-    if (!sections.length) fragment.append(element('p', 'sidebar-note', '可直接移入上方一级分类。'));
+    if (!sections.length) fragment.append(element('p', 'target-empty', category ? t("这个分类没有子分类，可直接移入。") : t("先选择上方分类。")));
     $('folder-targets').replaceChildren(fragment);
     renderSelection();
   }
 
   function renderStatus() {
-    $('mode').textContent = live ? 'Chrome 书签' : '示例预览';
+    document.querySelector('.release-stage').hidden = window.BOOKMARK_RELEASES.stage === 'published';
+    $('mode').textContent = live ? t("Chrome 书签") : t("示例书签");
     $('mode').classList.toggle('live', live);
-    $('connect').hidden = live;
-    $('refresh').textContent = '刷新';
-    $('save-status').textContent = busy ? '正在处理…' : live ? '更改立即写入浏览器，可撤销' : adapter.updatedAt ? '更改已保存到本机' : '公开示例 · 可直接体验';
-    $('total-count').textContent = `共 ${rows.length} 条`;
-    $('sidebar-note').textContent = live ? '更改写入当前 Chrome 书签。账号书签由浏览器同步。' : '当前使用公开示例。通过 Chrome 扩展打开自己的书签。';
+    $('save-status').textContent = busy ? t("正在处理…") : adapter.updatedAt ? t("已保存") : '';
+    $('total-count').textContent = t("共 {0} 条", rows.length);
   }
 
   async function refresh(resetScroll = false) {
@@ -365,11 +515,11 @@
       target = { ...destination };
       await refresh();
       if (result.count) closeTargets(true);
-      if (result.error) showNotice(`${result.count} 条已完成。${result.error}`);
-      else toast(result.count ? `已将 ${result.count} 条书签移到「${targetLabel(destination)}」` : '这些书签已经在目标分类中。', result.count > 0);
+      if (result.error) showNotice(t("{0} 条已完成。{1}", result.count, result.error));
+      else toast(result.count ? t("已将 {0} 条书签移到「{1}」", result.count, targetLabel(destination)) : t("这些书签已经在目标分类中。"), result.count > 0);
       if (adapter.warning) showNotice(adapter.warning);
     } catch (failure) {
-      showNotice(failure.message || '移动失败，请刷新后重试。');
+      showNotice(failure.message || t("移动失败，请刷新后重试。"));
       await refresh().catch(() => {});
     } finally {
       busy = false;
@@ -379,31 +529,35 @@
     }
   }
 
-  async function undo() {
+  async function undo(operationId) {
     if (busy || !adapter.history.length) return;
     busy = true;
     renderSelection();
     renderStatus();
     try {
-      const result = await adapter.undo();
+      const result = await adapter.undo(operationId);
       if (result.rename) applyFolderRename(result.rename);
       await refresh();
       if (result.error) showNotice(result.error);
-      toast(`已撤销 ${result.count} 条更改` + (result.skipped ? `，另有 ${result.skipped} 条因内容或位置已变化而跳过。` : '。'));
+      toast(result.error ? t("已恢复 {0} 项，本次撤销尚未完成。", result.count) : t("已恢复 {0} 项", result.count) + (result.skipped ? t("，{0} 项因内容或位置已变化而跳过。", result.skipped) : '。'));
       if (adapter.warning) showNotice(adapter.warning);
     } catch (failure) {
-      showNotice('撤销未完成。' + failure.message);
+      showNotice(t("撤销未完成。") + failure.message);
     } finally {
       busy = false;
       renderSelection();
       renderStatus();
+      if (operationId && !$('activity-panel').hidden) {
+        const record = [...$('activity-list').querySelectorAll('details')].find(node => node.dataset.operation === operationId);
+        record?.querySelector('summary').focus();
+      }
     }
   }
 
   function scheduleRefresh() {
     if (busy) { refreshPending = true; return; }
     clearTimeout(refreshTimer);
-    refreshTimer = setTimeout(() => { refresh().catch(failure => showNotice('读取 Chrome 书签失败。' + failure.message)); }, 180);
+    refreshTimer = setTimeout(() => { refresh().catch(failure => showNotice(t("读取 Chrome 书签失败。") + failure.message)); }, 180);
   }
 
   function editMessage(message, error = false) {
@@ -416,9 +570,9 @@
   function createEditor() {
     const form = element('form', 'inline-editor');
     form.id = 'inline-editor';
-    form.setAttribute('aria-label', '编辑书签');
+    form.setAttribute('aria-label', t("编辑书签"));
     const fields = element('div', 'inline-fields');
-    for (const [key, label, value] of [['prefix', '前缀', editing.prefix], ['name', '名称', editing.name], ['url', '网址', editing.url]]) {
+    for (const [key, label, value] of [['prefix', t("前缀"), editing.prefix], ['name', t("名称"), editing.name], ['url', t("网址"), editing.url]]) {
       const field = element('label', 'inline-field field-' + key, label);
       const input = element('input');
       input.id = 'edit-' + key;
@@ -427,22 +581,22 @@
       input.autocomplete = 'off';
       input.required = key !== 'prefix';
       input.disabled = busy || Boolean(nameTask);
-      if (key === 'prefix') { input.setAttribute('list', 'prefix-options'); input.placeholder = '可留空'; }
+      if (key === 'prefix') { input.setAttribute('list', 'prefix-options'); input.placeholder = t("可留空"); }
       if (key === 'url') input.spellcheck = false;
       field.append(input);
       fields.append(field);
     }
     const actions = element('div', 'inline-actions');
-    const read = element('button', 'quiet-button', '读取网页标题');
+    const read = element('button', 'quiet-button', t("读取网页标题"));
     read.id = 'read-page-title';
     read.type = 'button';
     read.disabled = busy || Boolean(nameTask);
-    const hint = element('span', 'inline-hint', live ? '保存后同步，可撤销' : '保存到草稿，可撤销');
-    const cancel = element('button', 'text-button', '取消');
+    const hint = element('span', 'inline-hint', live ? t("保存后同步，可撤销") : t("保存到草稿，可撤销"));
+    const cancel = element('button', 'text-button', t("取消"));
     cancel.type = 'button';
     cancel.id = 'cancel-edit';
     cancel.disabled = busy;
-    const save = element('button', 'primary-button', '保存');
+    const save = element('button', 'primary-button', t("保存"));
     save.id = 'save-edit';
     save.type = 'submit';
     save.disabled = busy || Boolean(nameTask);
@@ -489,8 +643,8 @@
     const controller = new AbortController();
     nameTask = controller;
     setReadControls(true);
-    editMessage('正在读取网页标题…首次访问需要允许该站点的读取权限。');
-    const timeout = setTimeout(() => controller.abort(new Error('网页读取超时，请重试。')), 25000);
+    editMessage(t("正在读取网页标题…首次访问需要允许该站点的读取权限。"));
+    const timeout = setTimeout(() => controller.abort(new Error(t("网页读取超时，请重试。"))), 25000);
     try {
       const url = await window.BookmarkPageTools.requestSite(draft.url.trim());
       const info = await window.BookmarkPageTools.readPage(url, controller.signal);
@@ -498,10 +652,10 @@
       if (editing !== draft) return;
       draft.name = info.title;
       if ($('edit-name')) $('edit-name').value = info.title;
-      editMessage('已填入网页原标题，可直接调整后保存。');
+      editMessage(t("已填入网页原标题，可直接调整后保存。"));
     } catch (failure) {
-      let message = failure.message || '网页读取失败，可直接手动编辑名称。';
-      if (controller.signal.aborted) message = controller.signal.reason?.message === '网页读取超时，请重试。' ? controller.signal.reason.message : '已取消网页读取。';
+      let message = failure.message || t("网页读取失败，可直接手动编辑名称。");
+      if (controller.signal.aborted) message = controller.signal.reason?.message === t("网页读取超时，请重试。") ? controller.signal.reason.message : t("已取消网页读取。");
       if (editing === draft) editMessage(message, !controller.signal.aborted);
     } finally {
       clearTimeout(timeout);
@@ -523,11 +677,11 @@
       editDrafts.delete(draft.id);
       editing = null;
       await refresh();
-      toast(result.count ? '书签名称和网址已保存。' : '名称和网址没有变化。', result.count > 0);
+      toast(result.count ? t("书签名称和网址已保存。") : t("名称和网址没有变化。"), result.count > 0);
       if (adapter.warning) showNotice(adapter.warning);
     } catch (failure) {
-      if (editing) editMessage(failure.message || '保存失败，请重试。', true);
-      else showNotice('书签已保存，列表刷新失败，请点击刷新。');
+      if (editing) editMessage(failure.message || t("保存失败，请重试。"), true);
+      else showNotice(t("书签已保存，列表刷新失败，请点击刷新。"));
     } finally {
       busy = false;
       setReadControls(false);
@@ -541,17 +695,17 @@
   async function applyPrefix(event) {
     event.preventDefault();
     if (busy || !selected.size) return;
-    if (editing && selected.has(editing.id)) { editMessage('请先保存或取消这条书签的编辑，再应用统一前缀。', true); return; }
+    if (editing && selected.has(editing.id)) { editMessage(t("请先保存或取消这条书签的编辑，再应用统一前缀。"), true); return; }
     busy = true;
     renderSelection();
     try {
       const result = await adapter.setPrefix([...selected], $('bulk-prefix').value);
       prefixEditing = false;
       await refresh();
-      if (result.error) showNotice(`${result.count} 条已完成。${result.error}`);
-      else toast(result.count ? `已为 ${result.count} 条书签设置统一前缀。` : '所选书签已经使用这个前缀。', result.count > 0);
+      if (result.error) showNotice(t("{0} 条已完成。{1}", result.count, result.error));
+      else toast(result.count ? t("已为 {0} 条书签设置统一前缀。", result.count) : t("所选书签已经使用这个前缀。"), result.count > 0);
       if (adapter.warning) showNotice(adapter.warning);
-    } catch (failure) { showNotice(failure.message || '前缀更新失败，请重试。'); }
+    } catch (failure) { showNotice(failure.message || t("前缀更新失败，请重试。")); }
     finally { busy = false; renderSelection(); renderStatus(); if (refreshPending) { refreshPending = false; scheduleRefresh(); } }
   }
 
@@ -572,7 +726,8 @@
 
   function selectSource(value) {
     closeTools();
-    $('connect-panel').hidden = true; document.querySelector('.bookmark-pane').classList.remove('connecting');
+    closeHelp();
+    closeActivity();
     cancelFolderRename();
     source = value;
     sourceSection = null;
@@ -607,10 +762,10 @@
     folderRename = { category: source, section: section ? sourceSection : '' };
     const category = categories.find(category => category.title === source);
     const variants = section ? category.variants.flatMap(folder => folder.children || []).filter(folder => !folder.url && folder.title === sourceSection) : category.variants;
-    $('folder-name-label').textContent = section ? '二级分类名称' : '一级分类名称';
+    $('folder-name-label').textContent = section ? t("二级分类名称") : t("一级分类名称");
     $('folder-name').value = section ? sourceSection : source;
-    $('folder-rename-note').textContent = variants.length > 1 ? `${variants.length} 处` : '';
-    $('folder-rename-note').title = `${variants.length} 个同名文件夹会一起改名`;
+    $('folder-rename-note').textContent = variants.length > 1 ? t("{0} 处", variants.length) : '';
+    $('folder-rename-note').title = t("{0} 个同名文件夹会一起改名", variants.length);
     $('folder-rename-note').hidden = variants.length <= 1;
     $('folder-rename-message').hidden = true;
     placeFolderRename();
@@ -641,17 +796,17 @@
       if (result.count) applyFolderRename(result.rename);
       await refresh();
       if (result.error) {
-        showNotice(`已改名 ${result.count} 个文件夹。${result.error}`);
+        showNotice(t("已改名 {0} 个文件夹。{1}", result.count, result.error));
         $('folder-rename-message').textContent = result.error;
         $('folder-rename-message').hidden = false;
       } else {
         folderRename = null;
         placeFolderRename();
-        toast(result.count ? `分类已改名为「${result.rename.after}」。` : '分类名称没有变化。', result.count > 0);
+        toast(result.count ? t("分类已改名为「{0}」。", result.rename.after) : t("分类名称没有变化。"), result.count > 0);
       }
       if (adapter.warning) showNotice(adapter.warning);
     } catch (failure) {
-      $('folder-rename-message').textContent = failure.message || '分类改名失败，请刷新后重试。';
+      $('folder-rename-message').textContent = failure.message || t("分类改名失败，请刷新后重试。");
       $('folder-rename-message').hidden = false;
     } finally {
       busy = false;
@@ -667,12 +822,12 @@
       const plan = Core.deletionPlan(tree, ids);
       if (!plan.nodes.length) return;
       deletion = { ids, signature: Core.deletionSignature(plan), keepers };
-      $('delete-title').textContent = label ? `删除「${label}」？` : `删除 ${plan.bookmarks} 条书签？`;
-      $('delete-description').textContent = plan.bookmarks ? '将删除 ' + plan.bookmarks + ' 条书签' + (plan.folders ? '及 ' + plan.folders + ' 个文件夹，范围包含所选目录及下级目录。' : '。') : '将删除 ' + plan.folders + ' 个空文件夹，范围包含所选目录及下级目录。';
+      $('delete-title').textContent = label ? t("删除「{0}」？", label) : t("删除 {0} 条书签？", plan.bookmarks);
+      $('delete-description').textContent = plan.bookmarks ? t("将删除 ") + plan.bookmarks + t(" 条书签") + (plan.folders ? t("及 ") + plan.folders + t(" 个文件夹，范围包含所选目录及下级目录。") : '。') : t("将删除 ") + plan.folders + t(" 个空文件夹，范围包含所选目录及下级目录。");
       $('delete-folders').hidden = !plan.folders;
       $('delete-folders').replaceChildren(...[...plan.nodes].reverse().filter(node => !node.url).slice(0, 20).map(node => element('li', '', node.title)));
-      if (plan.folders > 20) $('delete-folders').append(element('li', '', '另有 ' + (plan.folders - 20) + ' 个文件夹'));
-      $('delete-note').textContent = (plan.bookmarks ? '' : '范围内共 0 条书签。') + (live ? '确认后同步到 Chrome。' : '确认后更新本地草稿。') + '可通过撤销恢复内容与位置。' + (live ? '恢复后创建时间会更新。' : '');
+      if (plan.folders > 20) $('delete-folders').append(element('li', '', t("另有 ") + (plan.folders - 20) + t(" 个文件夹")));
+      $('delete-note').textContent = (plan.bookmarks ? '' : t("范围内共 0 条书签。")) + (live ? t("确认后同步到 Chrome。") : t("确认后更新本地草稿。")) + t("可通过撤销恢复内容与位置。") + (live ? t("恢复后创建时间会更新。") : '');
       $('delete-message').hidden = true;
       $('delete-dialog').showModal();
     } catch (failure) { showNotice(failure.message); }
@@ -697,8 +852,8 @@
       deletion = null;
       folderRename = null;
       await refresh();
-      if (result.error) showNotice(`已删除 ${result.count} 项，可撤销。${result.error}`);
-      toast(`已删除 ${result.count} 项。`, result.count > 0);
+      if (result.error) showNotice(t("已删除 {0} 项，可撤销。{1}", result.count, result.error));
+      toast(t("已删除 {0} 项。", result.count), result.count > 0);
       if (adapter.warning) showNotice(adapter.warning);
     } catch (failure) {
       $('delete-message').textContent = failure.message;
@@ -763,14 +918,14 @@
     const input = element('input');
     input.id = 'manager-name'; input.name = 'title'; input.required = true;
     input.autocomplete = 'off'; input.maxLength = 150; input.value = managerEdit.title;
-    input.placeholder = managerEdit.kind === 'rename' ? '分类名称' : '新分类名称';
-    input.setAttribute('aria-label', managerEdit.kind === 'rename' ? '修改分类名称' : '新分类名称');
+    input.placeholder = managerEdit.kind === 'rename' ? t("分类名称") : t("新分类名称");
+    input.setAttribute('aria-label', managerEdit.kind === 'rename' ? t("修改分类名称") : t("新分类名称"));
     if (managerEdit.kind === 'create') {
       const roots = managerEdit.category ? categories.find(item => item.title === managerEdit.category)?.variants || [] : Core.editableRoots(tree);
       if (roots.length > 1) {
-        const select = element('select'); select.name = 'parentId'; select.setAttribute('aria-label', '创建位置');
+        const select = element('select'); select.name = 'parentId'; select.setAttribute('aria-label', t("创建位置"));
         for (const root of roots) {
-          const option = element('option', '', root.title + (root.syncing ? ' · 账号' : ' · 本机'));
+          const option = element('option', '', root.title + (root.syncing ? t(" · 账号") : t(" · 本机")));
           option.value = root.id; select.append(option);
         }
         select.value = managerEdit.parentId; form.append(select);
@@ -778,8 +933,8 @@
     }
     form.append(input);
     const save = icon(element('button', 'icon-button save-icon'), 'check');
-    save.type = 'submit'; save.setAttribute('aria-label', '保存分类'); save.title = '保存 · Enter';
-    const cancel = managerButton('取消编辑分类', 'close', 'cancel-edit', {});
+    save.type = 'submit'; save.setAttribute('aria-label', t("保存分类")); save.title = t("保存 · Enter");
+    const cancel = managerButton(t("取消编辑分类"), 'close', 'cancel-edit', {});
     form.append(save, cancel);
     return form;
   }
@@ -794,8 +949,9 @@
       const wrapper = element('li', scope.section ? 'manager-item manager-child' : 'manager-item');
       const line = element('div', 'manager-row'); line.dataset.scope = JSON.stringify(scope);
       line.append(icon(element('span', 'manager-grip'), 'grip'));
-      if (!scope.section) {
-        const expand = managerButton((expandedCategories.has(scope.category) ? '收起 ' : '展开 ') + scope.category, 'chevron', 'expand', scope);
+      if (!scope.section && managerQuery) line.append(icon(element('span', 'manager-search-branch'), 'chevron'));
+      else if (!scope.section) {
+        const expand = managerButton((expandedCategories.has(scope.category) ? t("收起 ") : t("展开 ")) + scope.category, 'chevron', 'expand', scope);
         expand.classList.add('manager-expand'); expand.setAttribute('aria-expanded', String(expandedCategories.has(scope.category)));
         line.append(expand);
       } else line.append(element('span', 'manager-indent'));
@@ -804,34 +960,34 @@
       if (editing) line.append(managerEditor());
       else {
         const name = element('span', 'manager-name', scope.section || scope.category);
-        if (!count && nestedFolders) name.append(element('small', 'manager-depth-note', '含 ' + nestedFolders + ' 个空子目录'));
+        if (!count && nestedFolders) name.append(element('small', 'manager-depth-note', t("含 ") + nestedFolders + t(" 个空子目录")));
         line.append(name, element('span', 'manager-count', count));
-        if (!scope.section) line.append(managerButton('添加二级分类 ' + scope.category, 'plus', 'create-child', scope));
-        line.append(managerButton('改名 ' + targetLabel(scope), 'pencil', 'rename', scope), managerButton('更多 ' + targetLabel(scope), 'more', 'menu', scope));
+        if (!scope.section) line.append(managerButton(t("添加二级分类 ") + scope.category, 'plus', 'create-child', scope));
+        line.append(managerButton(t("改名 ") + targetLabel(scope), 'pencil', 'rename', scope), managerButton(t("更多 ") + targetLabel(scope), 'more', 'menu', scope));
       }
       wrapper.append(line);
       if (managerMenu === JSON.stringify(scope)) {
         const actions = element('div', 'manager-row-menu');
-        for (const [action, label, direction] of [['up', '上移', -1], ['down', '下移', 1]]) {
+        for (const [action, label, direction] of [['up', t("上移"), -1], ['down', t("下移"), 1]]) {
           const button = managerButton(label, null, action, scope);
           try { button.dataset.unavailable = String(!Core.structurePlan(tree, { kind: 'order', target: scope, direction }).steps.length); }
           catch { button.dataset.unavailable = 'true'; }
           button.disabled = busy || button.dataset.unavailable === 'true'; actions.append(button);
         }
-        actions.append(managerButton('合并到…', null, 'merge', scope));
-        const remove = managerButton('删除分类', null, 'delete', scope); remove.classList.add('danger-text'); actions.append(remove);
+        actions.append(managerButton(t("合并到…"), null, 'merge', scope));
+        const remove = managerButton(t("删除分类"), null, 'delete', scope); remove.classList.add('danger-text'); actions.append(remove);
         wrapper.append(actions);
       }
       if (managerMerge && JSON.stringify(managerMerge) === JSON.stringify(scope)) {
         const picker = element('div', 'manager-merge-picker');
         const heading = element('div', 'manager-picker-heading');
-        heading.append(element('span', '', '选择要合并到的分类'), managerButton('取消合并', null, 'cancel-merge', scope)); picker.append(heading);
+        heading.append(element('span', '', t("选择要合并到的分类")), managerButton(t("取消合并"), null, 'cancel-merge', scope)); picker.append(heading);
         const targets = folderChoices().filter(([item]) => Boolean(item.section) === Boolean(scope.section) && JSON.stringify(item) !== JSON.stringify(scope));
         for (const [item, label] of targets) picker.append(managerButton(label, null, 'merge-target', item));
-        if (!targets.length) picker.append(element('p', 'tool-note', '还没有其他同级分类。'));
+        if (!targets.length) picker.append(element('p', 'tool-note', t("还没有其他同级分类。")));
         wrapper.append(picker);
       }
-      if (!scope.section && expandedCategories.has(scope.category)) {
+      if (!scope.section && (managerQuery || expandedCategories.has(scope.category))) {
         const children = element('ul', 'manager-children');
         for (const child of hasChildren) children.append(row({ category: scope.category, section: child.title }, child.count, [], child.folderCount));
         if (managerEdit?.kind === 'create' && managerEdit.category === scope.category) {
@@ -841,13 +997,15 @@
       }
       return wrapper;
     }
-    for (const category of categories.filter(item => item.variants.length)) list.append(row({ category: category.title, section: '' }, category.count, category.sections));
+    for (const category of Core.filterCategories(categories.filter(item => item.variants.length), managerQuery)) list.append(row({ category: category.title, section: '' }, category.count, category.sections));
     fragment.append(list);
-    if (!list.children.length && !managerEdit) fragment.append(element('p', 'tool-note', '还没有分类，点击“新建分类”开始。'));
+    if (!list.children.length && !managerEdit) fragment.append(element('p', 'tool-note', managerQuery ? t("没有找到匹配的分类。") : t("还没有分类，点击“新建分类”开始。")));
     $('category-manager').replaceChildren(fragment);
     for (const control of $('category-manager').querySelectorAll('button,input,select')) control.disabled = busy || control.dataset.unavailable === 'true';
     if (focused && $('manager-name')) { $('manager-name').focus({ preventScroll: true }); if (caret) $('manager-name').setSelectionRange(...caret); }
   }
+
+  $('category-search').addEventListener('input', event => { managerQuery = event.target.value.trim(); renderManager(); });
 
   function beginManagerEdit(value) {
     managerEdit = value; managerMenu = null; managerMerge = null; toolsMessage('');
@@ -859,7 +1017,7 @@
       const plan = Core.deletionPlan(tree, Core.folderDeletionIds(tree, from));
       mergeRequest = { kind: 'merge', source: from, target: to, signature: Core.deletionSignature(plan) };
       Core.structurePlan(tree, mergeRequest);
-      $('merge-description').textContent = `将「${targetLabel(from)}」中的 ${plan.bookmarks} 条书签合并到「${targetLabel(to)}」。`;
+      $('merge-description').textContent = t("将「{0}」中的 {1} 条书签合并到「{2}」。", targetLabel(from), plan.bookmarks, targetLabel(to));
       $('merge-dialog').showModal();
     } catch (failure) { toolsMessage(failure.message); }
   }
@@ -868,8 +1026,8 @@
     const groups = Core.duplicateGroups(tree);
     duplicatePreview = groups.slice(0, 100);
     const fragment = document.createDocumentFragment();
-    if (!groups.length) fragment.append(element('p', 'tool-note', '没有找到相同网址的重复书签。'));
-    if (groups.length > 100) fragment.append(element('p', 'tool-note', `共 ${groups.length} 组，本次显示前 100 组。处理后可继续查重。`));
+    if (!groups.length) fragment.append(element('p', 'tool-note', t("没有找到相同网址的重复书签。")));
+    if (groups.length > 100) fragment.append(element('p', 'tool-note', t("共 {0} 组，本次显示前 100 组。处理后可继续查重。", groups.length)));
     duplicatePreview.forEach((group, index) => {
       const fieldset = element('fieldset', 'duplicate-group');
       fieldset.append(element('legend', '', group[0].url));
@@ -877,9 +1035,9 @@
         const label = element('label', 'duplicate-choice');
         const radio = element('input');
         radio.type = 'radio'; radio.name = 'duplicate-' + index; radio.value = row.id; radio.checked = position === 0;
-        radio.setAttribute('aria-label', '保留 ' + row.title + '，' + row.path);
+        radio.setAttribute('aria-label', t("保留 ") + row.title + '，' + row.path);
         const text = element('span', '', row.title);
-        text.append(element('small', '', row.path + (row.syncing ? ' · 账号' : ' · 本机')));
+        text.append(element('small', '', row.path + (row.syncing ? t(" · 账号") : t(" · 本机"))));
         label.append(radio, text); fieldset.append(label);
       }
       fragment.append(fieldset);
@@ -893,28 +1051,35 @@
     if (!importData) return;
     try {
       const plan = Core.structurePlan(tree, { kind: 'import', parentId: $('import-parent').value, forest: importData.forest });
-      $('import-summary').textContent = `${importData.name} · 将导入 ${plan.imported} 条，跳过 ${plan.skipped} 条相同网址` + (importData.skipped ? `、${importData.skipped} 条无效网址` : '') + (importData.flattened ? `。${importData.flattened} 个深层文件夹折叠到二级路径` : '');
-      $('import-categories').replaceChildren(...importData.forest.filter(node => !node.url).map(node => element('li', '', node.title + ' · ' + Core.count(node) + ' 条')));
+      $('confirm-import').dataset.unavailable = String(!plan.steps.length);
+      $('confirm-import').disabled = busy || !plan.steps.length;
+      $('import-summary').textContent = t("{0} · 将导入 {1} 条，跳过 {2} 条相同网址", importData.name, plan.imported, plan.skipped) + (importData.skipped ? t("、{0} 条无效网址", importData.skipped) : '') + (importData.flattened ? t("。{0} 个深层文件夹折叠到二级路径", importData.flattened) : '');
+      $('import-categories').replaceChildren(...importData.forest.filter(node => !node.url).map(node => element('li', '', node.title + ' · ' + Core.count(node) + t(" 条"))));
     } catch (failure) { toolsMessage(failure.message); }
   }
 
   function renderTools() {
+    const toolName = $('library-tools').querySelector('[role="tab"][aria-selected="true"]').id.slice(4);
+    $('tools-title').textContent = { categories: t("分类管理"), duplicates: t("查找重复"), import: t("导入备份") }[toolName];
     const roots = Core.editableRoots(tree);
-    const rootOptions = roots.map(root => [root.id, root.title + (root.syncing ? ' · 账号' : ' · 本机')]);
+    const rootOptions = roots.map(root => [root.id, root.title + (root.syncing ? t(" · 账号") : t(" · 本机"))]);
     setOptions($('import-parent'), rootOptions);
     renderManager();
-    $('confirm-import').disabled = busy || !importData;
+    $('confirm-import').disabled = busy || !importData || $('confirm-import').dataset.unavailable === 'true';
     if (!$('tool-duplicates').hidden) renderDuplicates();
     renderImportPreview();
   }
 
   async function organize(request, message, action) {
     if (busy) return;
-    busy = true; toolsMessage('正在处理…'); renderSelection(); renderStatus();
+    busy = true; toolsMessage(t("正在处理…")); renderSelection(); renderStatus();
     try {
       const result = await (action ? action() : adapter.organize(request));
       await refresh();
-      if (result.error) { showNotice(result.error); toolsMessage(result.error); }
+      if (result.message) {
+        toolsMessage(result.error || '');
+        if (result.error) showNotice(result.error);
+      } else if (result.error) { showNotice(result.error); toolsMessage(result.error); }
       else { toolsMessage(message); toast(message, result.count > 0); }
       if (adapter.warning) showNotice(adapter.warning);
       return !result.error;
@@ -925,9 +1090,9 @@
   function parseBookmarkHtml(text) {
     const document = new DOMParser().parseFromString(text, 'text/html');
     const root = document.querySelector('dl');
-    if (!root) throw new Error('文件中没有找到书签目录，请选择浏览器导出的 HTML。');
+    if (!root) throw new Error(t("文件中没有找到书签目录，请选择浏览器导出的 HTML。"));
     function parse(dl, depth) {
-      if (depth > 30) throw new Error('文件夹层级过深，请检查导入文件。');
+      if (depth > 30) throw new Error(t("文件夹层级过深，请检查导入文件。"));
       const nodes = [];
       for (const item of dl.children) {
         if (item.tagName !== 'DT') continue;
@@ -955,16 +1120,24 @@
     toolsMessage(''); renderTools();
   }
 
-  $('tools-toggle').addEventListener('click', () => {
+  function toggleTools() {
     const open = $('library-tools').hidden;
     $('library-tools').hidden = !open;
     $('tools-toggle').setAttribute('aria-expanded', String(open));
     document.querySelector('.bookmark-pane').classList.toggle('tools-open', open);
+    closeHelp();
+    closeActivity();
+    $('tools-toggle-mobile').setAttribute('aria-expanded', String(open));
     document.querySelector('.bookmark-pane').setAttribute('aria-labelledby', open ? 'tools-title' : 'source-title');
-    $('connect-panel').hidden = true; document.querySelector('.bookmark-pane').classList.remove('connecting');
-    if (open) { renderTools(); $('library-tools').querySelector('[aria-selected="true"]').focus(); }
+    $('connect').setAttribute('aria-expanded', 'false');
+    if (open) { showTool('categories'); $('tab-categories').focus(); }
+  }
+  $('tools-toggle').addEventListener('click', toggleTools);
+  $('tools-toggle-mobile').addEventListener('click', toggleTools);
+  $('tools-close').addEventListener('click', () => {
+    closeTools();
+    ($('tools-toggle').getClientRects().length ? $('tools-toggle') : $('tools-toggle-mobile')).focus();
   });
-  $('tools-close').addEventListener('click', () => { closeTools(); $('tools-toggle').focus(); });
   for (const name of ['categories', 'duplicates', 'import']) $('tab-' + name).addEventListener('click', () => showTool(name));
   $('library-tools').querySelector('[role="tablist"]').addEventListener('keydown', event => {
     if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
@@ -978,6 +1151,7 @@
   function closeTools() {
     $('library-tools').hidden = true;
     $('tools-toggle').setAttribute('aria-expanded', 'false');
+    $('tools-toggle-mobile').setAttribute('aria-expanded', 'false');
     document.querySelector('.bookmark-pane').classList.remove('tools-open');
     document.querySelector('.bookmark-pane').setAttribute('aria-labelledby', 'source-title');
   }
@@ -1005,7 +1179,7 @@
     else if (action === 'cancel-merge') managerMerge = null;
     else if (action === 'merge-target') { openMergePreview(managerMerge, scope); return; }
     else if (action === 'delete') { openDelete(Core.folderDeletionIds(tree, scope), targetLabel(scope)); return; }
-    else if (action === 'up' || action === 'down') { organize({ kind: 'order', target: scope, direction: action === 'up' ? -1 : 1 }, '分类顺序已更新。'); return; }
+    else if (action === 'up' || action === 'down') { organize({ kind: 'order', target: scope, direction: action === 'up' ? -1 : 1 }, t("分类顺序已更新。")); return; }
     renderManager();
     const controls = [...$('category-manager').querySelectorAll('[data-manager-action]')];
     let focus = controls.find(item => item.dataset.scope === JSON.stringify(scope) && item.dataset.managerAction === action);
@@ -1028,8 +1202,8 @@
     if (!managerEdit || busy) return;
     const edit = { ...managerEdit };
     let complete;
-    if (edit.kind === 'create') complete = await organize({ kind: 'create', parentId: edit.parentId, title: edit.title }, '分类已新建。');
-    else complete = await organize(null, '分类名称已更新。', async () => {
+    if (edit.kind === 'create') complete = await organize({ kind: 'create', parentId: edit.parentId, title: edit.title }, t("分类已新建。"));
+    else complete = await organize(null, t("分类名称已更新。"), async () => {
       const result = await adapter.renameFolders(edit.scope, edit.title);
       if (result.count) applyFolderRename(result.rename);
       return result;
@@ -1064,7 +1238,7 @@
       row.classList.add(after ? 'insert-after' : 'insert-before'); drag.destination = { target: scope, after };
     }
     $('drag-count').hidden = false;
-    $('drag-count').textContent = drag.destination ? '松手调整分类顺序' : targetLabel(drag.source);
+    $('drag-count').textContent = drag.destination ? t("松手调整分类顺序") : targetLabel(drag.source);
     $('drag-count').style.transform = `translate(${event.clientX + 16}px, ${event.clientY + 14}px)`;
     const panel = $('tool-categories'); const bounds = panel.getBoundingClientRect();
     if (event.clientY > bounds.bottom - 35) panel.scrollTop += 12;
@@ -1073,11 +1247,11 @@
   document.addEventListener('pointerup', event => {
     if (!managerPointer || event.pointerId !== managerPointer.pointerId) return;
     const drag = managerPointer; clearManagerDrag();
-    if (drag.active && drag.destination) organize({ kind: 'place', source: drag.source, ...drag.destination }, '分类顺序已更新。');
+    if (drag.active && drag.destination) organize({ kind: 'place', source: drag.source, ...drag.destination }, t("分类顺序已更新。"));
   });
   document.addEventListener('pointercancel', clearManagerDrag);
   $('cancel-merge').addEventListener('click', () => { $('merge-dialog').close(); mergeRequest = null; });
-  $('confirm-merge').addEventListener('click', () => { const request = mergeRequest; $('merge-dialog').close(); mergeRequest = null; managerMerge = null; managerMenu = null; if (request) organize(request, '分类已合并。'); });
+  $('confirm-merge').addEventListener('click', () => { const request = mergeRequest; $('merge-dialog').close(); mergeRequest = null; managerMerge = null; managerMenu = null; if (request) organize(request, t("分类已合并。")); });
   $('remove-duplicates').addEventListener('click', () => {
     const keepers = [];
     const ids = duplicatePreview.flatMap((group, index) => {
@@ -1090,19 +1264,70 @@
   $('import-parent').addEventListener('change', renderImportPreview);
   $('import-file').addEventListener('change', async event => {
     const file = event.target.files[0];
+    const revision = ++importReadRevision;
     importData = null; $('import-preview').hidden = true;
+    importJob = null; $('import-progress').hidden = true;
     if (!file) return;
     try {
-      if (file.size > 10 * 1024 * 1024) throw new Error('文件最大支持 10 MB。');
+      if (file.size > 10 * 1024 * 1024) throw new Error(t("文件最大支持 10 MB。"));
       const text = await file.text();
+      if (revision !== importReadRevision) return;
       const value = /\.json$/i.test(file.name) ? JSON.parse(text) : parseBookmarkHtml(text);
       importData = { ...Core.importForest(value), name: file.name };
-      toolsMessage(''); renderImportPreview(); $('confirm-import').disabled = busy || !importData;
-    } catch (failure) { toolsMessage('读取失败。' + failure.message); }
+      toolsMessage(''); renderImportPreview(); $('confirm-import').disabled = busy || !importData || $('confirm-import').dataset.unavailable === 'true';
+    } catch (failure) { if (revision === importReadRevision) toolsMessage(t("读取失败。") + failure.message); }
     event.target.value = '';
   });
-  $('confirm-import').addEventListener('click', () => {
-    if (importData) organize({ kind: 'import', parentId: $('import-parent').value, forest: importData.forest }, '导入已完成，已有的相同网址已跳过。');
+  function showImportProgress(progress) {
+    Object.assign(importJob, progress);
+    $('import-progress-label').textContent = t("已导入 {0} / {1} 条，跳过 {2} 条相同网址。", progress.imported, progress.planned, progress.skipped);
+    $('import-progress-bar').max = Math.max(1, progress.total);
+    $('import-progress-bar').value = progress.completed;
+    $('import-progress-bar').hidden = progress.total === 0;
+  }
+  function importOutcome(result) {
+    const outcome = result.cancelled ? t("导入已停止，已完成的内容已保留。") : result.error ? t("导入中断，已完成的内容已保留。") : t("导入已完成。");
+    return outcome + (result.count ? ' ' + t("可在操作记录中撤销本次导入。") : '') + (result.cancelled || result.error ? ' ' + t("再次确认将继续导入剩余内容。") : '');
+  }
+  $('cancel-import').addEventListener('click', () => {
+    if (!importJob?.active) return;
+    importJob.controller.abort();
+    $('cancel-import').disabled = true;
+    $('import-outcome').textContent = t("正在停止，已完成的内容将保留。");
+  });
+  window.addEventListener('beforeunload', event => {
+    if (!importJob?.active) return;
+    event.preventDefault();
+    event.returnValue = '';
+  });
+  $('confirm-import').addEventListener('click', async () => {
+    if (!importData || busy) return;
+    const request = { kind: 'import', parentId: $('import-parent').value, forest: importData.forest };
+    importJob = { active: true, controller: new AbortController() };
+    $('import-progress').hidden = false;
+    $('cancel-import').hidden = false;
+    $('import-progress-label').textContent = t("正在处理…");
+    $('import-progress-bar').value = 0;
+    $('import-progress-bar').hidden = false;
+    $('import-outcome').textContent = '';
+    await organize(request, '', async () => {
+      try {
+        const result = await adapter.organize(request, { signal: importJob.controller.signal, onProgress: showImportProgress });
+        if (importJob.total !== undefined) showImportProgress({ ...importJob, completed: result.count, imported: result.imported });
+        importJob.result = result;
+        $('import-outcome').textContent = importOutcome(result);
+        return { ...result, message: $('import-outcome').textContent };
+      } catch (failure) {
+        importJob.result = { count: 0, error: failure.message };
+        $('import-progress-label').textContent = t("导入中断，已完成的内容已保留。");
+        $('import-progress-bar').hidden = true;
+        $('import-outcome').textContent = importOutcome(importJob.result);
+        throw failure;
+      } finally {
+        importJob.active = false;
+        $('cancel-import').hidden = true;
+      }
+    });
   });
 
   function download(filename, content, type) {
@@ -1116,7 +1341,7 @@
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     $('export-menu').hidden = true;
     $('export').setAttribute('aria-expanded', 'false');
-    toast('已导出，请查看浏览器下载列表。');
+    toast(t("已导出，请查看浏览器下载列表。"));
   }
 
   $('source-nav').addEventListener('click', event => {
@@ -1165,6 +1390,13 @@
     renderSelection();
   });
   $('bookmark-list').addEventListener('click', event => {
+    if (event.target.closest('[data-list-more]')) {
+      const previous = listLimit;
+      listLimit += 200;
+      renderList();
+      $('bookmark-list').querySelectorAll('.bookmark-row')[previous]?.querySelector('input').focus();
+      return;
+    }
     const button = event.target.closest('[data-edit]');
     if (button) openEditor(button.dataset.edit);
     const remove = event.target.closest('[data-delete]');
@@ -1198,10 +1430,10 @@
     if (matched) matched.focus({ preventScroll: true });
   });
   $('move-selected').addEventListener('click', () => move([...selected], { ...target }));
-  $('undo').addEventListener('click', undo);
-  $('toast-undo').addEventListener('click', undo);
+  $('undo').addEventListener('click', () => undo());
+  $('toast-undo').addEventListener('click', () => undo());
   $('toast-close').addEventListener('click', () => { $('toast').hidden = true; });
-  $('refresh').addEventListener('click', () => refresh().then(() => toast(live ? '已读取 Chrome 最新书签。' : '已重新载入本机草稿。')).catch(failure => showNotice(failure.message)));
+  $('refresh').addEventListener('click', () => refresh().then(() => toast(live ? t("已读取 Chrome 最新书签。") : t("已重新载入本机草稿。"))).catch(failure => showNotice(failure.message)));
   function closeTargets(restoreFocus = false) {
     const wasOpen = $('target-pane').classList.contains('open');
     $('target-pane').classList.remove('open');
@@ -1235,7 +1467,7 @@
     event.preventDefault();
     pointerDrag.active = true;
     document.body.classList.add('is-dragging');
-    $('drag-count').textContent = `${dragIds.length} 条书签`;
+    $('drag-count').textContent = t("{0} 条书签", dragIds.length);
     $('drag-count').hidden = false;
     $('drag-count').style.transform = `translate(${event.clientX + 16}px, ${event.clientY + 14}px)`;
     for (const item of $('bookmark-list').children) item.classList.toggle('dragging', dragIds.includes(item.dataset.id));
@@ -1243,7 +1475,7 @@
     for (const previous of document.querySelectorAll('.drag-over')) if (previous !== destination) previous.classList.remove('drag-over');
     if (destination) destination.classList.add('drag-over');
     expandDragCategory(destination);
-    $('drag-count').textContent = destination ? `${dragIds.length} 条 · 松手移到 ${targetLabel(destination.dataset)}` : `${dragIds.length} 条书签`;
+    $('drag-count').textContent = destination ? t("{0} 条 · 松手移到 {1}", dragIds.length, targetLabel(destination.dataset)) : t("{0} 条书签", dragIds.length);
     const bounds = $('folder-targets').getBoundingClientRect();
     if (event.clientX >= bounds.left && event.clientX <= bounds.right) {
       if (event.clientY > bounds.bottom - 30) $('folder-targets').scrollTop += 14;
@@ -1281,7 +1513,7 @@
     const link = Core.externalLink(event.dataTransfer.getData('text/uri-list') || event.dataTransfer.getData('text/plain'));
     clearDrag();
     if (link) move([], next, link);
-    else toast('没有读取到网址，请拖动书签行或浏览器中的网页链接。');
+    else toast(t("没有读取到网址，请拖动书签行或浏览器中的网页链接。"));
   });
 
   $('export').addEventListener('click', () => {
@@ -1294,32 +1526,45 @@
       $('export').setAttribute('aria-expanded', 'false');
     }
   });
-  $('export-html').addEventListener('click', () => download(`书签整理_${new Date().toISOString().slice(0, 10)}.html`, Core.exportHtml(tree, ignoredFolderIds), 'text/html;charset=utf-8'));
-  $('export-backup').addEventListener('click', () => download(`书签完整备份_${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify({ format: 'bookmark-organizer-backup', version: 1, exportedAt: new Date().toISOString(), tree }, null, 2), 'application/json'));
-  $('export-changes').addEventListener('click', () => download(`书签操作记录_${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify({ version: 1, mode: adapter.mode, exportedAt: new Date().toISOString(), operations: adapter.changes }, null, 2), 'application/json'));
+  $('export-html').addEventListener('click', () => download(t("书签整理_{0}.html", new Date().toISOString().slice(0, 10)), Core.exportHtml(tree, ignoredFolderIds), 'text/html;charset=utf-8'));
+  $('export-backup').addEventListener('click', () => download(t("书签完整备份_{0}.json", new Date().toISOString().slice(0, 10)), JSON.stringify({ format: 'bookmark-organizer-backup', version: 1, exportedAt: new Date().toISOString(), tree }, null, 2), 'application/json'));
+  $('export-changes').addEventListener('click', () => download(t("书签操作记录_{0}.json", new Date().toISOString().slice(0, 10)), JSON.stringify({ version: 1, mode: adapter.mode, exportedAt: new Date().toISOString(), operations: adapter.changes }, null, 2), 'application/json'));
   $('connect').addEventListener('click', () => {
-    closeTools(); $('connect-panel').hidden = false;
+    closeTools(); closeActivity(); $('connect-panel').hidden = false;
+    $('connect').setAttribute('aria-expanded', 'true');
     document.querySelector('.bookmark-pane').classList.add('connecting');
     document.querySelector('.bookmark-pane').setAttribute('aria-labelledby', 'connect-title');
     $('close-connect').focus();
   });
   $('close-connect').addEventListener('click', () => {
-    $('connect-panel').hidden = true; document.querySelector('.bookmark-pane').classList.remove('connecting'); document.querySelector('.bookmark-pane').setAttribute('aria-labelledby', 'source-title'); $('connect').focus();
+    closeHelp(); $('connect').focus();
   });
+  function closeHelp() {
+    $('connect-panel').hidden = true;
+    $('connect').setAttribute('aria-expanded', 'false');
+    document.querySelector('.bookmark-pane').classList.remove('connecting');
+    document.querySelector('.bookmark-pane').setAttribute('aria-labelledby', 'source-title');
+  }
+  if (live) {
+    $('connection-intro').hidden = true;
+    document.querySelector('.connection-install').hidden = true;
+  }
   $('copy-extension-address').addEventListener('click', async () => {
-    try { await navigator.clipboard.writeText('chrome://extensions'); toast('地址已复制，请粘贴到 Chrome 地址栏。'); }
-    catch { toast('请在 Chrome 地址栏输入 chrome://extensions。'); }
+    try { await navigator.clipboard.writeText('chrome://extensions'); toast(t("地址已复制，请粘贴到 Chrome 地址栏。")); }
+    catch { toast(t("请在 Chrome 地址栏输入 chrome://extensions。")); }
   });
   if (!['http:', 'https:'].includes(location.protocol)) {
     $('download-extension').hidden = true;
-    const help = element('p', 'tool-note', '源码用户可运行 npm run build，在 dist 中取得扩展包。');
+    const help = element('p', 'tool-note', t("源码用户可运行 npm run build，在 dist 中取得扩展包。"));
     $('download-extension').after(help);
   }
   document.addEventListener('keydown', event => {
-    if ($('delete-dialog').open || $('merge-dialog').open) return;
+    if ($('delete-dialog').open || $('merge-dialog').open || $('clear-history-dialog').open) return;
     const typing = event.target.closest('input, select, textarea, [contenteditable="true"]');
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k' && !event.target.closest('#inline-editor')) {
-      event.preventDefault(); $('search').focus();
+      event.preventDefault();
+      if (!$('library-tools').hidden && $('tab-categories').getAttribute('aria-selected') === 'true') $('category-search').focus();
+      else { closeTools(); closeHelp(); closeActivity(); $('search').focus(); }
     }
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'z' && !typing) {
       event.preventDefault(); undo();
@@ -1334,12 +1579,78 @@
     }
   });
 
-  if (!navigator.platform.toLowerCase().includes('mac')) $('search-shortcut').textContent = 'Ctrl K';
+  function closeReleases() {
+    $('releases-panel').hidden = true;
+    $('releases-toggle').setAttribute('aria-expanded', 'false');
+    document.querySelector('.bookmark-pane').classList.remove('releasing');
+  }
+  function renderReleases() {
+    const data = window.BOOKMARK_RELEASES;
+    const list = document.createDocumentFragment();
+    if (!data.published.length) list.append(element('p', 'release-empty', t("尚无公开发布版本。")));
+    for (const release of data.published) {
+      const section = element('section', 'release-entry');
+      section.append(element('h3', '', 'v' + release.version), element('time', '', release.date));
+      const features = element('ul');
+      for (const feature of release.features) features.append(element('li', '', t(feature)));
+      section.append(features); list.append(section);
+    }
+    if (data.stage === 'published') { $('release-history').replaceChildren(list); return; }
+    const upcoming = element('section', 'release-upcoming');
+    upcoming.append(element('h3', '', 'v' + data.version + ' · ' + t("准备发布")));
+    const features = element('ul');
+    for (const feature of data.upcoming) features.append(element('li', '', t(feature)));
+    upcoming.append(features); list.append(upcoming);
+    $('release-history').replaceChildren(list);
+  }
+  $('releases-toggle').addEventListener('click', () => {
+    closeTools(); closeHelp(); closeActivity();
+    $('releases-panel').hidden = false;
+    $('releases-toggle').setAttribute('aria-expanded', 'true');
+    document.querySelector('.bookmark-pane').classList.add('releasing');
+    document.querySelector('.bookmark-pane').setAttribute('aria-labelledby', 'releases-title');
+    renderReleases(); $('releases-close').focus();
+  });
+  $('releases-close').addEventListener('click', () => { closeReleases(); document.querySelector('.bookmark-pane').setAttribute('aria-labelledby', 'source-title'); $('releases-toggle').focus(); });
+  $('clear-history').addEventListener('click', () => { $('clear-history-error').hidden = true; $('clear-history-dialog').showModal(); });
+  $('cancel-clear-history').addEventListener('click', () => { $('clear-history-dialog').close(); $('clear-history').focus(); });
+  $('confirm-clear-history').addEventListener('click', async () => {
+    if (busy) return;
+    busy = true; renderSelection();
+    $('confirm-clear-history').disabled = true; $('cancel-clear-history').disabled = true;
+    try {
+      await adapter.clearHistory();
+      $('clear-history-dialog').close();
+      await refresh(); toast(t("操作记录已清空。"));
+      window.dispatchEvent(new Event('bookmark-storagechange'));
+      $('activity-close').focus();
+    } catch (failure) { $('clear-history-error').textContent = failure.message; $('clear-history-error').hidden = false; }
+    finally { busy = false; renderSelection(); $('confirm-clear-history').disabled = false; $('cancel-clear-history').disabled = false; }
+  });
+
+  icon($('refresh'), 'refresh');
+  icon($('undo'), 'undo');
+  if (!navigator.platform.toLowerCase().includes('mac')) {
+    $('search-shortcut').textContent = 'Ctrl K';
+    $('undo').title = t("撤销 · Ctrl Z");
+  }
+  const headerObserver = new ResizeObserver(() => {
+    document.documentElement.style.setProperty('--header-height', document.querySelector('.app-header').getBoundingClientRect().height + 'px');
+  });
+  headerObserver.observe(document.querySelector('.app-header'));
+  window.addEventListener('bookmark-languagechange', () => {
+    $('inline-editor')?.remove();
+    renderNavigation(); renderSourceSections(); renderList(); renderTargets(); renderStatus(); renderTools(); renderReleases();
+    if (importJob?.total !== undefined) showImportProgress(importJob);
+    if (importJob?.result) $('import-outcome').textContent = importOutcome(importJob.result);
+    if (folderRename) $('folder-name-label').textContent = folderRename.section ? t('二级分类名称') : t('一级分类名称');
+    if (!navigator.platform.toLowerCase().includes('mac')) $('undo').title = t('撤销 · Ctrl Z');
+  });
   if (adapter.subscribe) adapter.subscribe(scheduleRefresh);
   renderStatus();
-  refresh().then(() => { if (adapter.warning) showNotice(adapter.warning); }).catch(failure => {
-    showNotice('书签读取失败。' + failure.message);
-    $('save-status').textContent = '读取失败，请刷新后重试';
+  window.BookmarkI18n.ready.then(() => refresh()).then(() => { if (adapter.warning) showNotice(adapter.warning); }).catch(failure => {
+    showNotice(t("书签读取失败。") + failure.message);
+    $('save-status').textContent = t("读取失败，请刷新后重试");
     $('bookmark-list').setAttribute('aria-busy', 'false');
   });
 })();

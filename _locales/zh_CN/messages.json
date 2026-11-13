@@ -1,0 +1,11 @@
+{
+  "appName": {
+    "message": "书签整理"
+  },
+  "appDescription": {
+    "message": "列表内编辑名称和网址，读取网页标题，统一前缀，拖拽归类并支持撤销。"
+  },
+  "openTitle": {
+    "message": "打开书签整理"
+  }
+}

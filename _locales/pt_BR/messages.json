@@ -1,0 +1,11 @@
+{
+  "appName": {
+    "message": "Organizador de favoritos"
+  },
+  "appDescription": {
+    "message": "Edite nomes e URLs na lista, leia títulos, defina prefixos, arraste para organizar e desfaça alterações."
+  },
+  "openTitle": {
+    "message": "Abrir organizador de favoritos"
+  }
+}

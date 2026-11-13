@@ -25,7 +25,7 @@ function fixture() {
 
 function adapters(storage = new Map()) {
   const window = { BookmarkCore: Core };
-  const context = { window, crypto, localStorage: { getItem: key => storage.get(key) || null, setItem: (key, value) => storage.set(key, value), removeItem: key => storage.delete(key) }, URL, Date, Map, Set };
+  const context = { window, crypto, localStorage: { getItem: key => storage.get(key) || null, setItem: (key, value) => storage.set(key, value), removeItem: key => storage.delete(key) }, URL, Date, Map, Set, setTimeout };
   vm.runInNewContext(fs.readFileSync(require('node:path').join(__dirname, '../adapter.js'), 'utf8'), context);
   return window.BookmarkAdapters;
 }
@@ -919,4 +919,316 @@ test('moving requires an explicit destination category', async () => {
   const tree = fixture();
   assert.throws(() => Core.resolveDestination(tree, { category: '', section: '' }, false, () => 'new'), /目标分类/);
   assert.deepEqual(Core.categoryNames([{id: '0',children:[{id:'1',parentId:'0',children:[]}]}]), []);
+});
+
+for (const mode of ['draft', 'live']) {
+  function logAdapter() {
+    const api = fakeApi();
+    const adapter = mode === 'draft' ? adapters().draftAdapter({ tree: fixture() }, true) : adapters().chromeAdapter(api, null, null);
+    return { api, adapter };
+  }
+
+  test(`${mode} can undo an older independent operation by record identity`, async () => {
+    const { adapter } = logAdapter();
+    await adapter.load();
+    await adapter.update('one', { title: 'First edit', url: 'https://example.com/one' });
+    const first = Core.operationKey(adapter.history[0]);
+    await adapter.update('two', { title: 'Second edit', url: 'https://example.com/two' });
+    const second = Core.operationKey(adapter.history[1]);
+    const result = await adapter.undo(first);
+    assert.equal(result.count, 1);
+    const indexed = Core.indexTree(await adapter.load());
+    assert.equal(indexed.get('one').node.title, 'one');
+    assert.equal(indexed.get('two').node.title, 'Second edit');
+    assert.equal(adapter.history.length, 1);
+    assert.equal(Core.operationKey(adapter.history[0]), second);
+    assert.equal(Core.operationKey(adapter.changes.at(-1).entry), first);
+    await adapter.undo();
+    assert.equal(Core.indexTree(await adapter.load()).get('two').node.title, 'two');
+  });
+
+  test(`${mode} blocks a selected record when a later operation touches the same bookmark`, async () => {
+    const { adapter } = logAdapter();
+    await adapter.load();
+    await adapter.update('one', { title: 'First edit', url: 'https://example.com/one' });
+    const first = Core.operationKey(adapter.history[0]);
+    await adapter.update('one', { title: 'Later edit', url: 'https://example.com/one' });
+    const before = JSON.stringify(await adapter.load());
+    await assert.rejects(adapter.undo(first), /后面还有相关更改/);
+    assert.equal(JSON.stringify(await adapter.load()), before);
+    assert.equal(adapter.history.length, 2);
+    await adapter.undo();
+    await adapter.undo(first);
+    assert.equal(Core.indexTree(await adapter.load()).get('one').node.title, 'one');
+  });
+
+  test(`${mode} never falls back to the latest operation for an expired record`, async () => {
+    const { adapter } = logAdapter();
+    await adapter.load();
+    await adapter.update('one', { title: 'Kept edit', url: 'https://example.com/one' });
+    await assert.rejects(adapter.undo('expired-operation'), /已超出可撤销范围/);
+    assert.equal(adapter.history.length, 1);
+    assert.equal(Core.indexTree(await adapter.load()).get('one').node.title, 'Kept edit');
+  });
+}
+
+test('legacy records share an identity with their audit copy and keep it after id remapping', () => {
+  const entry = { at: '2026-01-01T00:00:00.000Z', type: 'update', id: 'old', before: { title: 'a', url: 'https://example.com' }, after: { title: 'b', url: 'https://example.com' }, moves: [], created: [] };
+  const state = { history: [Core.copy(entry)], changes: [Core.copy(entry)] };
+  Core.stampOperations(state);
+  const key = Core.operationKey(state.history[0]);
+  assert.equal(key, Core.operationKey(state.changes[0]));
+  state.history[0].id = 'restored';
+  Core.stampOperations(state);
+  assert.equal(key, Core.operationKey(state.history[0]));
+});
+
+test('operation dependency includes shared folder positions and new child folders', () => {
+  const moved = { operationId: 'move', moves: [{ id: 'one', fromParentId: 'source', toParentId: 'target' }] };
+  const later = { operationId: 'new', created: [{ id: 'child', toParentId: 'target' }] };
+  assert.match(Core.undoAvailability([moved, later], 'move').reason, /后面还有相关更改/);
+});
+
+test('record details preserve move names and original paths after later category renames', async () => {
+  const adapter = adapters().draftAdapter({ tree: fixture() }, true);
+  await adapter.move(['one'], { category: '学习', section: '公开课程' });
+  const record = Core.copy(adapter.changes[0]);
+  await adapter.renameFolders({ category: '学习' }, '新分类');
+  const detail = Core.operationDetails(record, await adapter.load())[0];
+  assert.equal(detail.title, 'one');
+  assert.equal(detail.before, '阅读 / 书籍');
+  assert.equal(detail.after, '学习 / 公开课程');
+});
+
+for (const mode of ['draft', 'live']) {
+  test(`${mode} restores an older deletion without consuming a newer independent edit`, async () => {
+    const api = fakeApi();
+    const adapter = mode === 'draft' ? adapters().draftAdapter({ tree: fixture() }, true) : adapters().chromeAdapter(api, null, null);
+    const initial = await adapter.load();
+    const plan = Core.deletionPlan(initial, ['one']);
+    await adapter.remove(['one'], Core.deletionSignature(plan));
+    const deletion = Core.operationKey(adapter.history[0]);
+    await adapter.update('two', { title: 'Kept later edit', url: 'https://example.com/two' });
+    const later = Core.operationKey(adapter.history[1]);
+    await adapter.undo(deletion);
+    const restored = Core.bookmarks(await adapter.load());
+    assert(restored.some(item => item.node.url === 'https://example.com/one'));
+    assert.equal(adapter.history.length, 1);
+    assert.equal(Core.operationKey(adapter.history[0]), later);
+    assert.equal(Core.indexTree(await adapter.load()).get('two').node.title, 'Kept later edit');
+  });
+}
+
+test('selected older live undo can retry after reopening and leaves the newer record intact', async () => {
+  const api = fakeApi();
+  const storage = new Map();
+  const persistence = {
+    get: async key => ({ [key]: storage.has(key) ? JSON.parse(storage.get(key)) : undefined }),
+    set: async value => { for (const [key, state] of Object.entries(value)) storage.set(key, JSON.stringify(state)); }
+  };
+  let adapter = adapters().chromeAdapter(api, persistence, null);
+  await adapter.load();
+  await adapter.move(['one'], { category: '学习', section: '公开课程' });
+  const movement = Core.operationKey(adapter.history[0]);
+  await adapter.update('two', { title: 'Later independent edit', url: 'https://example.com/two' });
+  const later = Core.operationKey(adapter.history[1]);
+  api.failId = 'one';
+  const failed = await adapter.undo(movement);
+  assert.match(failed.error, /进度已保留/);
+  assert.equal(adapter.history.length, 2);
+  api.failId = null;
+  adapter = adapters().chromeAdapter(api, persistence, null);
+  await adapter.load();
+  const result = await adapter.undo(movement);
+  assert.equal(result.count, 1);
+  assert.equal(Core.indexTree(await adapter.load()).get('one').node.parentId, 'source');
+  assert.equal(adapter.history.length, 1);
+  assert.equal(Core.operationKey(adapter.history[0]), later);
+});
+
+test('new audit records reuse folder paths without duplicating bookmark details', async () => {
+  const adapter = adapters().draftAdapter({ tree: fixture() }, true);
+  await adapter.move(['one', 'two', 'three'], { category: '学习', section: '公开课程' });
+  const entry = adapter.changes[0];
+  assert.equal(entry.details, undefined);
+  assert.equal(Object.keys(entry.locations).length, 2);
+  assert.equal(Core.operationDetails(entry, [])[0].after, '学习 / 公开课程');
+});
+
+test('a completed retry records cumulative restored and skipped outcomes', async () => {
+  const api = fakeApi();
+  const adapter = adapters().chromeAdapter(api, null, null);
+  await adapter.load();
+  await adapter.setPrefix(['one', 'two'], 'Docs');
+  await api.update('one', { title: 'External title' });
+  api.failId = 'two';
+  assert.match((await adapter.undo()).error, /进度已保留/);
+  api.failId = null;
+  await adapter.undo();
+  const audit = adapter.changes.at(-1);
+  assert.equal(audit.count, 1);
+  assert.equal(audit.skipped, 1);
+  assert.equal(Core.indexTree(await adapter.load()).get('one').node.title, 'External title');
+});
+
+test('location snapshots follow restored folder ids while preserving historical names', async () => {
+  const adapter = adapters().chromeAdapter(fakeApi(), null, null);
+  await adapter.load();
+  await adapter.move(['one'], { category: '学习', section: '公开课程' });
+  const plan = Core.deletionPlan(await adapter.load(), ['source']);
+  await adapter.remove(['source'], Core.deletionSignature(plan));
+  await adapter.undo();
+  await adapter.renameFolders({ category: '阅读', section: '书籍' }, 'New name');
+  const detail = Core.operationDetails(adapter.history[0], await adapter.load())[0];
+  assert.equal(detail.before, '阅读 / 书籍');
+  assert.equal(detail.after, '学习 / 公开课程');
+});
+
+for (const mode of ['draft','live']) {
+  test(`${mode} clearing history persists without modifying bookmark data`, async () => {
+    const storage = new Map();
+    const api = fakeApi();
+    const persistence = {get:async key=>({[key]:storage.has(key)?JSON.parse(storage.get(key)):undefined}),set:async value=>{for(const [key,item] of Object.entries(value))storage.set(key,JSON.stringify(item));}};
+    const create = () => mode === 'draft' ? adapters(storage).draftAdapter({tree:fixture()},false) : adapters().chromeAdapter(api,persistence,null);
+    let adapter = create(); await adapter.load();
+    await adapter.update('one',{title:'Kept bookmark',url:'https://example.com/one'});
+    const before=JSON.stringify(await adapter.load());
+    await adapter.clearHistory();
+    assert.equal(adapter.history.length,0); assert.equal(adapter.changes.length,0);
+    assert.equal(JSON.stringify(await adapter.load()),before);
+    adapter=create(); await adapter.load();
+    assert.equal(adapter.history.length,0); assert.equal(adapter.changes.length,0);
+    assert.equal(JSON.stringify(await adapter.load()),before);
+  });
+}
+
+test('failed live history clearing restores the undo state for a safe retry', async () => {
+  let fail=false;
+  const persistence={get:async()=>({}),set:async data=>{if(fail && Object.values(data)[0].history.length===0)throw new Error('quota');}};
+  const adapter=adapters().chromeAdapter(fakeApi(),persistence,null);
+  await adapter.load();
+  await adapter.update('one',{title:'Kept',url:'https://example.com/one'});
+  // The test store must return its saved state when the mutation lock rereads it.
+  let saved={history:Core.copy(adapter.history),changes:Core.copy(adapter.changes)};
+  persistence.get=async key=>({[key]:Core.copy(saved)});
+  persistence.set=async data=>{const value=Object.values(data)[0];if(fail && !value.history.length)throw new Error('quota');saved=Core.copy(value);};
+  fail=true;
+  await assert.rejects(adapter.clearHistory(),/未能清空/);
+  assert.equal(adapter.history.length,1);
+  fail=false;
+  await adapter.clearHistory();
+  assert.equal(adapter.history.length,0);
+});
+
+test('category search shows matching children with their parent and preserves the original catalog', () => {
+  const categories=Core.catalog(fixture(),Core.categoryNames(fixture()));
+  const original=JSON.stringify(categories);
+  const result=Core.filterCategories(categories,'  书籍  ');
+  assert.equal(result.length,1); assert.equal(result[0].title,'阅读'); assert.equal(result[0].sections[0].title,'书籍');
+  assert.equal(Core.filterCategories(categories,'学习')[0].sections.length,categories.find(item=>item.title==='学习').sections.length);
+  assert.equal(Core.filterCategories(categories,'not present').length,0);
+  assert.equal(JSON.stringify(categories),original);
+  assert.equal(Core.filterCategories(categories,''),categories);
+});
+
+for (const mode of ['draft', 'live']) {
+  test(`${mode} cancelled imports persist actual counts and resume without duplicates`, async () => {
+    const api = fakeApi();
+    const storage = new Map();
+    const persistence = persistentStorage();
+    const factory = adapters(storage);
+    const open = () => mode === 'live'
+      ? factory.chromeAdapter(api, persistence, null)
+      : factory.draftAdapter({ tree: fixture() }, false);
+    const request = { kind: 'import', parentId: '2', forest: [{ title: 'Import test', children: Array.from({ length: 80 }, (_, index) => ({ title: `Sample ${index}`, url: `https://import.example/${index}` })) }] };
+    const controller = new AbortController();
+    let adapter = open();
+    const progress = [];
+    const partial = await adapter.organize(request, {
+      signal: controller.signal,
+      onProgress: value => {
+        progress.push(value);
+        if (value.imported === 25) controller.abort();
+      }
+    });
+    assert.equal(partial.cancelled, true);
+    assert.equal(partial.imported, 25);
+    assert.equal(partial.count, 26);
+    assert.equal(progress[0].planned, 80);
+    adapter = open();
+    assert.equal(Core.bookmarks(await adapter.load()).length, 29);
+    const remaining = await adapter.organize(request);
+    assert.equal(remaining.imported, 55);
+    assert.equal(remaining.skipped, 25);
+    const urls = Core.bookmarks(await adapter.load()).map(item => item.node.url);
+    assert.equal(urls.length, new Set(urls).size);
+    assert.equal(urls.length, 84);
+    await adapter.undo();
+    await adapter.undo();
+    assert.equal(Core.bookmarks(await adapter.load()).length, 4);
+    assert.equal(Core.indexTree(await adapter.load()).get('2').node.children.length, 0);
+  });
+
+  test(`${mode} cancelling before the first step leaves no history or new folder`, async () => {
+    const factory = adapters();
+    const adapter = mode === 'live' ? factory.chromeAdapter(fakeApi()) : factory.draftAdapter({ tree: fixture() }, true);
+    const before = await adapter.load();
+    const controller = new AbortController();
+    controller.abort();
+    const result = await adapter.organize({ kind: 'import', parentId: '2', forest: [{ title: 'Cancelled', children: [{ title: 'Sample', url: 'https://import.example/cancelled' }] }] }, { signal: controller.signal });
+    assert.equal(result.cancelled, true);
+    assert.equal(result.imported, 0);
+    assert.deepEqual(await adapter.load(), before);
+    assert.equal(adapter.history.length, 0);
+  });
+}
+
+test('failed live import reports completed bookmarks and preserves them for undo after reopening', async () => {
+  const api = fakeApi();
+  const create = api.create;
+  let count = 0;
+  api.create = async value => {
+    if (value.url && ++count === 4) throw new Error('interrupted import');
+    return create(value);
+  };
+  const persistence = persistentStorage();
+  const factory = adapters();
+  let adapter = factory.chromeAdapter(api, persistence, null);
+  const request = { kind: 'import', parentId: '2', forest: [{ title: 'Partial import', children: Array.from({ length: 10 }, (_, index) => ({ title: `Sample ${index}`, url: `https://partial.example/${index}` })) }] };
+  const result = await adapter.organize(request);
+  assert.equal(result.imported, 3);
+  assert.match(result.error, /interrupted import/);
+  adapter = factory.chromeAdapter(api, persistence, null);
+  assert.equal(Core.bookmarks(await adapter.load()).length, 7);
+  await adapter.undo();
+  assert.equal(Core.bookmarks(await adapter.load()).length, 4);
+});
+
+test('maximum-size import planning preserves the source and creates one step per bookmark', () => {
+  const tree = fixture();
+  const request = { kind: 'import', parentId: '2', forest: [{ title: 'Large import', children: Array.from({ length: 20000 }, (_, index) => ({ title: `Sample ${index}`, url: `https://large.example/${index}` })) }] };
+  const plan = Core.structurePlan(tree, request);
+  assert.equal(plan.imported, 20000);
+  assert.equal(plan.steps.length, 20001);
+  assert.equal(Core.bookmarks(tree).length, 4);
+});
+
+test('cancelling an untouched live import preserves all thirty existing undo records', async () => {
+  const api = fakeApi();
+  const storage = persistentStorage();
+  const factory = adapters();
+  const adapter = factory.chromeAdapter(api, storage, null);
+  for (let index = 0; index < 30; index++) {
+    await adapter.update('one', { title: `Revision ${index}`, url: 'https://example.com/one' });
+  }
+  const original = adapter.history.map(entry => entry.operationId);
+  const controller = new AbortController();
+  controller.abort();
+  const result = await adapter.organize({ kind: 'import', parentId: '2', forest: [{ title: 'Cancelled', url: 'https://cancelled.example/' }] }, { signal: controller.signal });
+  assert.equal(result.count, 0);
+  assert.equal(result.cancelled, true);
+  assert.deepEqual(adapter.history.map(entry => entry.operationId), original);
+  const reopened = factory.chromeAdapter(api, storage, null);
+  await reopened.load();
+  assert.deepEqual(reopened.history.map(entry => entry.operationId), original);
 });
