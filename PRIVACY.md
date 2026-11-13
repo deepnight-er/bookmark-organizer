@@ -2,6 +2,8 @@
 
 适用于本项目当前发行版本，具体版本可在“外观”中查看。
 
+本扩展对用户数据的使用遵循 Chrome 应用商店用户数据政策，包括 Limited Use 要求。书签及操作快照仅用于用户发起的书签管理功能。[Chrome 应用商店用户数据政策](https://developer.chrome.com/docs/webstore/program-policies/policies#protecting-user-privacy)
+
 ## 处理的数据
 
 扩展读取当前浏览器配置中的书签名称、网址、文件夹结构、排序及账号存储标记，用于展示、搜索、编辑、分类管理、重复检查、移动、删除和导出。修改直接通过浏览器书签 API 完成。
