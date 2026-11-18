@@ -47,7 +47,7 @@ Chrome 最低版本为 134。
 
 ## 兼容范围
 
-支持 Chrome 134+。第二台真实设备、Chrome 跨版本升级及 Edge、Firefox 的兼容效果仍待验证。12 种界面语言已提供，母语校对仍在完善。测试环境与结果见[兼容与验证](docs/ACCEPTANCE.md)。
+支持 Chrome 134+，提供 12 种界面语言。Edge、Firefox 的兼容性未验证。测试环境、覆盖范围与结果见[兼容与验证](docs/ACCEPTANCE.md)。
 
 ## 开发与反馈
 

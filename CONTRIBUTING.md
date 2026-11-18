@@ -76,11 +76,6 @@ main 更新及 Pull Request 会触发 Linux、Windows 的测试、检查、构�
 
 对外发布前，维护者应核对安装步骤、扩展权限、截图与安全反馈入口，并按需要配置 GitHub 私密漏洞报告。配置方法见 [GitHub 官方说明](https://docs.github.com/en/code-security/how-tos/report-and-fix-vulnerabilities/configure-vulnerability-reporting/configure-for-a-repository)。
 
-## 待补充验证
+## 补充兼容性与翻译验证
 
-- 第二台真实设备上的账号同步。
-- Chrome 跨版本升级及 Edge、Firefox 适配。
-- 各语言的母语校对与较长文案精修。
-- 实际版本标签触发的草稿 Release 流程。
-
-已完成的测试范围见[兼容与验证](docs/ACCEPTANCE.md)。
+欢迎补充浏览器兼容性、跨设备同步、扩展升级及翻译校对结果。提交时请注明环境、复现步骤和实际结果。已验证与未验证的范围见[兼容与验证](docs/ACCEPTANCE.md)。
